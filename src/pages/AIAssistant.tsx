@@ -1,39 +1,85 @@
-import { useState } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
-import { MessageSquare, Send, Bot, User, Mic, Image, FileText } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Textarea } from "@/components/ui/textarea"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { 
+  MessageSquare, 
+  Brain, 
+  Camera, 
+  FileText, 
+  Leaf, 
+  Zap,
+  Send,
+  Image,
+  TrendingUp,
+  AlertTriangle
+} from "lucide-react"
+
+const chatHistory = [
+  {
+    id: 1,
+    type: 'user',
+    message: 'What are the optimal growing conditions for tomatoes?',
+    timestamp: '2024-01-20 14:30'
+  },
+  {
+    id: 2,
+    type: 'assistant',
+    message: 'Optimal tomato growing conditions include: Temperature 65-75°F (18-24°C), pH 6.0-6.8, well-draining soil with organic matter, 6+ hours of direct sunlight, and consistent watering (1-2 inches per week).',
+    timestamp: '2024-01-20 14:31'
+  }
+]
+
+const assistantFeatures = [
+  {
+    title: 'Crop Analysis',
+    description: 'AI-powered crop health assessment and disease detection',
+    icon: Camera,
+    badge: 'Gemini Vision'
+  },
+  {
+    title: 'Document Generation',
+    description: 'Automated compliance and export documentation',
+    icon: FileText,
+    badge: 'Gemini Pro'
+  },
+  {
+    title: 'Expert Consultation',
+    description: 'Agricultural best practices and recommendations',
+    icon: Brain,
+    badge: 'Gemini Pro'
+  },
+  {
+    title: 'Market Insights',
+    description: 'Real-time market analysis and pricing trends',
+    icon: TrendingUp,
+    badge: 'Gemini Pro'
+  }
+]
+
+const recentAnalyses = [
+  {
+    type: 'Crop Disease Detection',
+    result: 'Healthy - No issues detected',
+    confidence: 96,
+    date: '2024-01-20'
+  },
+  {
+    type: 'Soil Quality Assessment',
+    result: 'Good - Minor nutrient deficiency',
+    confidence: 88,
+    date: '2024-01-19'
+  },
+  {
+    type: 'Pest Identification',
+    result: 'Aphids detected - Treatment recommended',
+    confidence: 92,
+    date: '2024-01-18'
+  }
+]
 
 export default function AIAssistant() {
-  const [message, setMessage] = useState("")
-  const [messages] = useState([
-    {
-      id: 1,
-      type: "assistant",
-      content: "Hello! I'm your AI farming assistant. I can help you with crop management, pest identification, compliance questions, and export documentation. How can I assist you today?",
-      timestamp: "09:00"
-    },
-    {
-      id: 2,
-      type: "user", 
-      content: "I noticed some spots on my tomato leaves. Can you help identify what this might be?",
-      timestamp: "09:02"
-    },
-    {
-      id: 3,
-      type: "assistant",
-      content: "I'd be happy to help identify the issue with your tomato leaves! To provide an accurate diagnosis, could you please upload a clear photo of the affected leaves? Also, let me know:\n\n• When did you first notice the spots?\n• What's the current weather like in your area?\n• Have you applied any treatments recently?\n\nThis will help me give you the most accurate identification and treatment recommendations.",
-      timestamp: "09:03"
-    }
-  ])
-
-  const quickActions = [
-    { label: "Crop Disease ID", icon: Image },
-    { label: "Weather Advice", icon: MessageSquare },
-    { label: "Compliance Check", icon: FileText },
-    { label: "Market Prices", icon: MessageSquare }
-  ]
 
   return (
     <div className="p-6 space-y-6">

@@ -1,180 +1,215 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Progress } from "@/components/ui/progress"
-import { Shield, FileCheck, AlertCircle, Clock, CheckCircle } from "lucide-react"
+import { 
+  Shield, 
+  FileCheck, 
+  AlertTriangle, 
+  CheckCircle, 
+  Clock, 
+  Globe,
+  Building,
+  Leaf,
+  Truck
+} from "lucide-react"
+
+const complianceData = {
+  overallScore: 94,
+  certifications: [
+    { name: "GlobalGAP", status: "active", expires: "2024-12-15", score: 96 },
+    { name: "Organic Certification", status: "active", expires: "2024-10-30", score: 98 },
+    { name: "Fair Trade", status: "pending", expires: "2024-11-20", score: 92 },
+    { name: "ISO 22000", status: "active", expires: "2025-01-15", score: 90 }
+  ],
+  requirements: [
+    { category: "Food Safety", completed: 28, total: 30, critical: 2 },
+    { category: "Environmental", completed: 22, total: 25, critical: 1 },
+    { category: "Labor Standards", completed: 18, total: 20, critical: 0 },
+    { category: "Quality Control", completed: 35, total: 38, critical: 3 }
+  ]
+}
 
 export default function Compliance() {
-  const standards = [
-    {
-      id: 1,
-      name: "EU Organic Regulation",
-      description: "European Union organic farming standards",
-      status: "compliant",
-      progress: 100,
-      expiryDate: "2024-12-15",
-      lastAudit: "2024-01-15"
-    },
-    {
-      id: 2,
-      name: "USDA Organic",
-      description: "United States Department of Agriculture organic certification",
-      status: "pending",
-      progress: 75,
-      expiryDate: "2024-08-30",
-      lastAudit: "2023-11-20"
-    },
-    {
-      id: 3,
-      name: "GlobalGAP",
-      description: "Good Agricultural Practices standard",
-      status: "compliant",
-      progress: 95,
-      expiryDate: "2025-03-10",
-      lastAudit: "2024-02-28"
-    },
-    {
-      id: 4,
-      name: "ISO 22000",
-      description: "Food safety management systems",
-      status: "non-compliant",
-      progress: 45,
-      expiryDate: "2024-06-20",
-      lastAudit: "2023-12-05"
-    }
-  ]
-
-  const getStatusColor = (status: string) => {
+  const getStatusBadge = (status: string) => {
     switch (status) {
-      case "compliant": return "default"
-      case "pending": return "secondary"
-      case "non-compliant": return "destructive"
-      default: return "outline"
-    }
-  }
-
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case "compliant": return CheckCircle
-      case "pending": return Clock
-      case "non-compliant": return AlertCircle
-      default: return Shield
+      case 'active':
+        return <Badge variant="secondary" className="bg-success text-success-foreground">Active</Badge>
+      case 'pending':
+        return <Badge variant="outline" className="border-warning text-warning">Pending</Badge>
+      case 'expired':
+        return <Badge variant="destructive">Expired</Badge>
+      default:
+        return <Badge variant="outline">{status}</Badge>
     }
   }
 
   return (
     <div className="p-6 space-y-6">
-      <div className="flex justify-between items-center">
+      <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-foreground">Compliance Center</h1>
-          <p className="text-muted-foreground">Track certification standards and compliance status</p>
+          <p className="text-muted-foreground">Monitor certification status and regulatory compliance</p>
         </div>
-        <Button>
-          <FileCheck className="mr-2 h-4 w-4" />
-          Request Audit
+        <Button className="bg-primary text-primary-foreground hover:bg-primary/90">
+          <FileCheck className="h-4 w-4 mr-2" />
+          Generate Report
         </Button>
       </div>
 
-      {/* Compliance Overview */}
+      {/* Overview Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Total Standards</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">12</div>
-            <p className="text-xs text-muted-foreground">Being tracked</p>
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground">Overall Score</p>
+                <p className="text-2xl font-bold">{complianceData.overallScore}%</p>
+              </div>
+              <Shield className="h-8 w-8 text-success" />
+            </div>
           </CardContent>
         </Card>
-
+        
         <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Compliant</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-green-600">8</div>
-            <p className="text-xs text-muted-foreground">Standards met</p>
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground">Active Certs</p>
+                <p className="text-2xl font-bold">3/4</p>
+              </div>
+              <CheckCircle className="h-8 w-8 text-success" />
+            </div>
           </CardContent>
         </Card>
-
+        
         <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Pending</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-yellow-600">2</div>
-            <p className="text-xs text-muted-foreground">Under review</p>
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground">Critical Issues</p>
+                <p className="text-2xl font-bold">6</p>
+              </div>
+              <AlertTriangle className="h-8 w-8 text-warning" />
+            </div>
           </CardContent>
         </Card>
-
+        
         <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Action Required</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-red-600">2</div>
-            <p className="text-xs text-muted-foreground">Need attention</p>
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground">Next Audit</p>
+                <p className="text-2xl font-bold">45d</p>
+              </div>
+              <Clock className="h-8 w-8 text-info" />
+            </div>
           </CardContent>
         </Card>
       </div>
 
-      {/* Standards List */}
-      <div className="space-y-4">
-        {standards.map((standard) => {
-          const StatusIcon = getStatusIcon(standard.status)
-          
-          return (
-            <Card key={standard.id}>
-              <CardHeader>
-                <div className="flex justify-between items-start">
-                  <div className="flex items-center space-x-3">
-                    <StatusIcon className="h-5 w-5 text-muted-foreground" />
-                    <div>
-                      <CardTitle className="text-lg">{standard.name}</CardTitle>
-                      <CardDescription>{standard.description}</CardDescription>
+      <Tabs defaultValue="certifications" className="space-y-4">
+        <TabsList>
+          <TabsTrigger value="certifications">Certifications</TabsTrigger>
+          <TabsTrigger value="requirements">Requirements</TabsTrigger>
+          <TabsTrigger value="audits">Audit History</TabsTrigger>
+          <TabsTrigger value="documents">Documents</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="certifications" className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {complianceData.certifications.map((cert, index) => (
+              <Card key={index} className="hover:shadow-md transition-shadow">
+                <CardHeader className="pb-3">
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-lg">{cert.name}</CardTitle>
+                    {getStatusBadge(cert.status)}
+                  </div>
+                  <CardDescription>Expires: {cert.expires}</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-muted-foreground">Compliance Score:</span>
+                      <span className="font-medium">{cert.score}%</span>
                     </div>
+                    <Progress value={cert.score} className="h-2" />
                   </div>
-                  <Badge variant={getStatusColor(standard.status)}>
-                    {standard.status.replace('-', ' ')}
-                  </Badge>
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span>Compliance Progress</span>
-                    <span>{standard.progress}%</span>
-                  </div>
-                  <Progress value={standard.progress} className="h-2" />
-                </div>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                  <div>
-                    <span className="text-muted-foreground">Expiry Date:</span>
-                    <span className="ml-2 font-medium">{standard.expiryDate}</span>
-                  </div>
-                  <div>
-                    <span className="text-muted-foreground">Last Audit:</span>
-                    <span className="ml-2 font-medium">{standard.lastAudit}</span>
-                  </div>
-                </div>
-                
-                <div className="flex gap-2 pt-2">
-                  <Button variant="outline" size="sm">
+                  <Button size="sm" variant="outline" className="w-full">
+                    <FileCheck className="h-4 w-4 mr-2" />
                     View Details
                   </Button>
-                  <Button variant="outline" size="sm">
-                    Download Certificate
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </TabsContent>
+
+        <TabsContent value="requirements" className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {complianceData.requirements.map((req, index) => (
+              <Card key={index} className="hover:shadow-md transition-shadow">
+                <CardHeader className="pb-3">
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-lg">{req.category}</CardTitle>
+                    {req.critical > 0 && (
+                      <Badge variant="destructive">{req.critical} Critical</Badge>
+                    )}
+                  </div>
+                  <CardDescription>
+                    {req.completed} of {req.total} requirements completed
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-muted-foreground">Progress:</span>
+                      <span className="font-medium">{Math.round((req.completed / req.total) * 100)}%</span>
+                    </div>
+                    <Progress value={(req.completed / req.total) * 100} className="h-2" />
+                  </div>
+                  <Button size="sm" variant="outline" className="w-full">
+                    View Checklist
                   </Button>
-                  <Button size="sm">
-                    Update Status
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          )
-        })}
-      </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </TabsContent>
+
+        <TabsContent value="audits" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Audit History</CardTitle>
+              <CardDescription>Previous certification audits and assessments</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="text-center py-8">
+                <FileCheck className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                <h3 className="text-lg font-medium mb-2">Audit Records</h3>
+                <p className="text-muted-foreground">Historical audit data and compliance assessments</p>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="documents" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Compliance Documents</CardTitle>
+              <CardDescription>Certificates, policies, and compliance documentation</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="text-center py-8">
+                <FileCheck className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                <h3 className="text-lg font-medium mb-2">Document Library</h3>
+                <p className="text-muted-foreground">Access and manage compliance documentation</p>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
     </div>
   )
 }
