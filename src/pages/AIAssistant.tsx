@@ -1,6 +1,9 @@
+
+import { useState } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { 
@@ -13,7 +16,10 @@ import {
   Send,
   Image,
   TrendingUp,
-  AlertTriangle
+  AlertTriangle,
+  Bot,
+  User,
+  Mic
 } from "lucide-react"
 
 const chatHistory = [
@@ -79,7 +85,17 @@ const recentAnalyses = [
   }
 ]
 
+const quickActions = [
+  { label: 'Crop Health Check', icon: Leaf },
+  { label: 'Pest Identification', icon: AlertTriangle },
+  { label: 'Weather Forecast', icon: Brain },
+  { label: 'Market Prices', icon: TrendingUp },
+  { label: 'Compliance Check', icon: FileText }
+]
+
 export default function AIAssistant() {
+  const [messages, setMessages] = useState(chatHistory)
+  const [message, setMessage] = useState("")
 
   return (
     <div className="p-6 space-y-6">
@@ -126,7 +142,7 @@ export default function AIAssistant() {
                         <User className="h-4 w-4 mt-0.5 text-primary-foreground/80" />
                       )}
                       <div className="flex-1">
-                        <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
+                        <p className="text-sm whitespace-pre-wrap">{msg.message}</p>
                         <p className={`text-xs mt-1 ${
                           msg.type === "user" 
                             ? "text-primary-foreground/60" 
