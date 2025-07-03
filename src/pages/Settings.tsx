@@ -1,11 +1,14 @@
+
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Switch } from "@/components/ui/switch"
-import { Badge } from "@/components/ui/badge"
-import { Separator } from "@/components/ui/separator"
-import { User, Bell, Shield, Database, Wifi, Globe } from "lucide-react"
+import { ProfileSection } from "@/components/settings/ProfileSection"
+import { NotificationSection } from "@/components/settings/NotificationSection"
+import { SecuritySection } from "@/components/settings/SecuritySection"
+import { Database, Wifi, Globe, Settings as SettingsIcon } from "lucide-react"
 
 export default function Settings() {
   return (
@@ -15,191 +18,191 @@ export default function Settings() {
         <p className="text-muted-foreground">Manage your account and platform preferences</p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Main Settings */}
-        <div className="lg:col-span-2 space-y-6">
-          {/* Profile Settings */}
+      <Tabs defaultValue="profile" className="space-y-4">
+        <TabsList className="grid w-full grid-cols-5">
+          <TabsTrigger value="profile">Profile</TabsTrigger>
+          <TabsTrigger value="notifications">Notifications</TabsTrigger>
+          <TabsTrigger value="security">Security</TabsTrigger>
+          <TabsTrigger value="integrations">Integrations</TabsTrigger>
+          <TabsTrigger value="system">System</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="profile" className="space-y-4">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="lg:col-span-2">
+              <ProfileSection />
+            </div>
+            <div className="space-y-4">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg">Account Status</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm">Plan</span>
+                    <Badge variant="default">Professional</Badge>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm">Member since</span>
+                    <span className="text-sm text-muted-foreground">Jan 2024</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm">Farms</span>
+                    <span className="text-sm font-medium">12</span>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="notifications" className="space-y-4">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="lg:col-span-2">
+              <NotificationSection />
+            </div>
+            <div className="space-y-4">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg">Notification Summary</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm">Unread alerts</span>
+                    <Badge variant="destructive">3</Badge>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm">Email frequency</span>
+                    <span className="text-sm text-muted-foreground">Daily digest</span>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="security" className="space-y-4">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="lg:col-span-2">
+              <SecuritySection />
+            </div>
+            <div className="space-y-4">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg">Security Status</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm">Password strength</span>
+                    <Badge variant="default">Strong</Badge>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm">2FA</span>
+                    <Badge variant="outline">Disabled</Badge>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm">Last login</span>
+                    <span className="text-sm text-muted-foreground">2 hours ago</span>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="integrations" className="space-y-4">
           <Card>
             <CardHeader>
-              <div className="flex items-center space-x-2">
-                <User className="h-5 w-5" />
-                <CardTitle>Profile Information</CardTitle>
-              </div>
-              <CardDescription>Update your personal information and contact details</CardDescription>
+              <CardTitle>API Configuration</CardTitle>
+              <CardDescription>Manage external service integrations and API keys</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="firstName">First Name</Label>
-                  <Input id="firstName" placeholder="John" />
+                  <Label htmlFor="weatherApi">Weather API Key</Label>
+                  <Input id="weatherApi" type="password" placeholder="••••••••" />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="lastName">Last Name</Label>
-                  <Input id="lastName" placeholder="Doe" />
+                  <Label htmlFor="geminiApi">Gemini AI API Key</Label>
+                  <Input id="geminiApi" type="password" placeholder="••••••••" />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="marketApi">Market Data API</Label>
+                  <Input id="marketApi" type="password" placeholder="••••••••" />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="blockchainApi">Blockchain API</Label>
+                  <Input id="blockchainApi" type="password" placeholder="••••••••" />
                 </div>
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="email">Email Address</Label>
-                <Input id="email" type="email" placeholder="john.doe@example.com" />
+              <div className="flex gap-2">
+                <Button variant="outline">Test Connections</Button>
+                <Button>Save API Keys</Button>
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="phone">Phone Number</Label>
-                <Input id="phone" placeholder="+1 (555) 123-4567" />
-              </div>
-              <Button>Save Changes</Button>
             </CardContent>
           </Card>
+        </TabsContent>
 
-          {/* Notification Settings */}
-          <Card>
-            <CardHeader>
-              <div className="flex items-center space-x-2">
-                <Bell className="h-5 w-5" />
-                <CardTitle>Notifications</CardTitle>
-              </div>
-              <CardDescription>Configure how you receive notifications and alerts</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div className="space-y-0.5">
-                  <Label>IoT Sensor Alerts</Label>
-                  <p className="text-sm text-muted-foreground">Get notified when sensors detect anomalies</p>
+        <TabsContent value="system" className="space-y-4">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg">System Status</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-2">
+                    <Database className="h-4 w-4" />
+                    <span className="text-sm">Database</span>
+                  </div>
+                  <Badge variant="default">Online</Badge>
                 </div>
-                <Switch defaultChecked />
-              </div>
-              <Separator />
-              <div className="flex items-center justify-between">
-                <div className="space-y-0.5">
-                  <Label>Compliance Updates</Label>
-                  <p className="text-sm text-muted-foreground">Receive updates about certification status</p>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-2">
+                    <Wifi className="h-4 w-4" />
+                    <span className="text-sm">IoT Sensors</span>
+                  </div>
+                  <Badge variant="default">12/14 Active</Badge>
                 </div>
-                <Switch defaultChecked />
-              </div>
-              <Separator />
-              <div className="flex items-center justify-between">
-                <div className="space-y-0.5">
-                  <Label>Export Document Status</Label>
-                  <p className="text-sm text-muted-foreground">Updates on document processing</p>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-2">
+                    <Globe className="h-4 w-4" />
+                    <span className="text-sm">AI Services</span>
+                  </div>
+                  <Badge variant="default">Available</Badge>
                 </div>
-                <Switch defaultChecked />
-              </div>
-              <Separator />
-              <div className="flex items-center justify-between">
-                <div className="space-y-0.5">
-                  <Label>Market Insights</Label>
-                  <p className="text-sm text-muted-foreground">Weekly market analysis and pricing updates</p>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-2">
+                    <SettingsIcon className="h-4 w-4" />
+                    <span className="text-sm">Background Tasks</span>
+                  </div>
+                  <Badge variant="default">Running</Badge>
                 </div>
-                <Switch />
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
 
-          {/* Security Settings */}
-          <Card>
-            <CardHeader>
-              <div className="flex items-center space-x-2">
-                <Shield className="h-5 w-5" />
-                <CardTitle>Security</CardTitle>
-              </div>
-              <CardDescription>Manage your security preferences and access controls</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="currentPassword">Current Password</Label>
-                <Input id="currentPassword" type="password" />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="newPassword">New Password</Label>
-                <Input id="newPassword" type="password" />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="confirmPassword">Confirm New Password</Label>
-                <Input id="confirmPassword" type="password" />
-              </div>
-              <div className="flex items-center justify-between">
-                <div className="space-y-0.5">
-                  <Label>Two-Factor Authentication</Label>
-                  <p className="text-sm text-muted-foreground">Add an extra layer of security</p>
-                </div>
-                <Switch />
-              </div>
-              <Button>Update Password</Button>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Sidebar */}
-        <div className="space-y-6">
-          {/* System Status */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">System Status</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-2">
-                  <Database className="h-4 w-4" />
-                  <span className="text-sm">Database</span>
-                </div>
-                <Badge variant="default">Online</Badge>
-              </div>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-2">
-                  <Wifi className="h-4 w-4" />
-                  <span className="text-sm">IoT Sensors</span>
-                </div>
-                <Badge variant="default">12/14 Active</Badge>
-              </div>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-2">
-                  <Globe className="h-4 w-4" />
-                  <span className="text-sm">AI Services</span>
-                </div>
-                <Badge variant="default">Available</Badge>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* API Configuration */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">API Configuration</CardTitle>
-              <CardDescription>Manage external service integrations</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <div className="space-y-2">
-                <Label htmlFor="weatherApi">Weather API Key</Label>
-                <Input id="weatherApi" type="password" placeholder="••••••••" />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="geminiApi">Gemini AI API Key</Label>
-                <Input id="geminiApi" type="password" placeholder="••••••••" />
-              </div>
-              <Button variant="outline" className="w-full">
-                Test Connections
-              </Button>
-            </CardContent>
-          </Card>
-
-          {/* Data Management */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Data Management</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <Button variant="outline" className="w-full">
-                Export Data
-              </Button>
-              <Button variant="outline" className="w-full">
-                Backup Settings
-              </Button>
-              <Button variant="destructive" className="w-full">
-                Delete Account
-              </Button>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg">Data Management</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <Button variant="outline" className="w-full">
+                  Export All Data
+                </Button>
+                <Button variant="outline" className="w-full">
+                  Backup Settings
+                </Button>
+                <Button variant="outline" className="w-full">
+                  Import Configuration
+                </Button>
+                <Button variant="destructive" className="w-full">
+                  Delete Account
+                </Button>
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
+      </Tabs>
     </div>
   )
 }
