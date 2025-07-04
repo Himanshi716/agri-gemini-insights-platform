@@ -36,7 +36,7 @@ const navigationItems = [{
 }];
 export function AppSidebar() {
   return <Sidebar collapsible="icon">
-      <SidebarContent>
+      <SidebarContent className="bg-gray-50">
         <SidebarGroup>
           <SidebarGroupLabel>Agricultural Platform</SidebarGroupLabel>
           <SidebarGroupContent>
@@ -46,7 +46,7 @@ export function AppSidebar() {
                     <NavLink to={item.url} className={({
                   isActive
                 }) => isActive ? "bg-accent text-accent-foreground font-medium" : "hover:bg-accent/50"}>
-                      <item.icon className="h-4 w-4" />
+                      <item.icon className="h-4 w-4 bg-slate-950" />
                       <span className="text-slate-950">{item.title}</span>
                     </NavLink>
                   </SidebarMenuButton>
