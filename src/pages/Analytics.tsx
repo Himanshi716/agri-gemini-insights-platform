@@ -4,6 +4,8 @@ import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { ChartCard } from "@/components/analytics/ChartCard"
 import { ReportCard } from "@/components/analytics/ReportCard"
+import { AdvancedCharts } from "@/components/analytics/AdvancedCharts"
+import { ReportScheduler } from "@/components/analytics/ReportScheduler"
 import { BarChart3, Download, Filter, Zap } from "lucide-react"
 
 const performanceMetrics = [
@@ -115,7 +117,9 @@ export default function Analytics() {
         <TabsList>
           <TabsTrigger value="performance">Performance</TabsTrigger>
           <TabsTrigger value="predictive">Predictive Analytics</TabsTrigger>
+          <TabsTrigger value="advanced">Advanced Charts</TabsTrigger>
           <TabsTrigger value="reports">Reports</TabsTrigger>
+          <TabsTrigger value="scheduler">Report Scheduler</TabsTrigger>
           <TabsTrigger value="realtime">Real-time Data</TabsTrigger>
         </TabsList>
 
@@ -189,12 +193,20 @@ export default function Analytics() {
           </Card>
         </TabsContent>
 
+        <TabsContent value="advanced" className="space-y-4">
+          <AdvancedCharts showDrillDown={true} />
+        </TabsContent>
+
         <TabsContent value="reports" className="space-y-4">
           <div className="space-y-4">
             {reports.map((report, index) => (
               <ReportCard key={index} {...report} />
             ))}
           </div>
+        </TabsContent>
+
+        <TabsContent value="scheduler" className="space-y-4">
+          <ReportScheduler />
         </TabsContent>
 
         <TabsContent value="realtime" className="space-y-4">

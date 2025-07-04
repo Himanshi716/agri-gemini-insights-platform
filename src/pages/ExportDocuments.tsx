@@ -2,6 +2,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { DocumentTemplate } from "@/components/export/DocumentTemplate"
+import { QRCodeGenerator } from "@/components/export/QRCodeGenerator"
+import { BlockchainVerification } from "@/components/export/BlockchainVerification"
 import { 
   FileText, 
   Download, 
@@ -13,7 +16,10 @@ import {
   Globe,
   Truck,
   Shield,
-  Leaf
+  Leaf,
+  QrCode,
+  Hash,
+  Zap
 } from "lucide-react"
 
 const exportDocuments = [
@@ -45,28 +51,40 @@ const exportDocuments = [
 
 const templates = [
   {
+    id: 'cert_origin',
     name: 'Certificate of Origin',
     description: 'Document certifying the country of origin for agricultural products',
     icon: Globe,
-    fields: 12
+    fields: ['Product Name', 'Origin Country', 'Destination Country', 'Export Date', 'Quantity', 'Product Description', 'Exporter Details', 'Importer Details', 'Batch Number', 'Quality Grade', 'Certification Authority', 'Additional Notes'],
+    type: 'Certificate',
+    compliance_standards: ['WTO Rules of Origin', 'NAFTA', 'GSP']
   },
   {
+    id: 'phyto_cert',
     name: 'Phytosanitary Certificate',
     description: 'Plant health certificate for international trade',
     icon: Leaf,
-    fields: 15
+    fields: ['Plant Species', 'Scientific Name', 'Quantity', 'Origin Country', 'Destination Country', 'Inspection Date', 'Inspection Authority', 'Treatment Details', 'Pest Status', 'Health Declaration', 'Inspector Name', 'Certificate Number', 'Validity Period', 'Additional Requirements', 'Inspection Notes'],
+    type: 'Health Certificate',
+    compliance_standards: ['IPPC', 'WTO SPS Agreement', 'ISPM Standards']
   },
   {
+    id: 'quality_cert',
     name: 'Quality Certificate',
     description: 'Product quality assurance documentation',
     icon: Shield,
-    fields: 8
+    fields: ['Product Name', 'Quality Grade', 'Testing Date', 'Laboratory Name', 'Test Results', 'Standards Met', 'Batch Number', 'Additional Notes'],
+    type: 'Quality Assurance',
+    compliance_standards: ['ISO 9001', 'HACCP', 'SQF']
   },
   {
+    id: 'export_license',
     name: 'Export License',
     description: 'Official export authorization document',
     icon: FileCheck,
-    fields: 10
+    fields: ['License Number', 'Product Category', 'Destination Country', 'Export Quantity', 'Value', 'License Authority', 'Issue Date', 'Expiry Date', 'Conditions', 'Restrictions'],
+    type: 'License',
+    compliance_standards: ['Export Administration Regulations', 'ITAR', 'Local Export Laws']
   }
 ]
 
@@ -169,6 +187,8 @@ export default function ExportDocuments() {
         <TabsList>
           <TabsTrigger value="documents">Documents</TabsTrigger>
           <TabsTrigger value="templates">Templates</TabsTrigger>
+          <TabsTrigger value="qr-generator">QR & Traceability</TabsTrigger>
+          <TabsTrigger value="blockchain">Blockchain</TabsTrigger>
           <TabsTrigger value="automation">Automation</TabsTrigger>
           <TabsTrigger value="archive">Archive</TabsTrigger>
         </TabsList>
@@ -212,28 +232,149 @@ export default function ExportDocuments() {
         </TabsContent>
 
         <TabsContent value="templates" className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {templates.map((template, index) => (
-              <Card key={index} className="hover:shadow-md transition-shadow">
-                <CardHeader className="pb-3">
-                  <div className="flex items-center space-x-3">
-                    <template.icon className="h-6 w-6 text-primary" />
-                    <CardTitle className="text-lg">{template.name}</CardTitle>
-                  </div>
-                  <CardDescription>{template.description}</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-muted-foreground">Fields:</span>
-                    <span className="font-medium">{template.fields}</span>
-                  </div>
-                  <Button size="sm" variant="outline" className="w-full">
-                    <FileText className="h-4 w-4 mr-2" />
-                    Use Template
-                  </Button>
-                </CardContent>
-              </Card>
+          <div className="space-y-6">
+            {templates.map((template) => (
+              <DocumentTemplate
+                key={template.id}
+                template={template}
+                onGenerate={(data) => {
+                  console.log('Generate document:', data)
+                  // Integrate with document generation service
+                }}
+                onPreview={(data) => {
+                  console.log('Preview document:', data)
+                  // Show document preview
+                }}
+              />
             ))}
+          </div>
+        </TabsContent>
+
+        <TabsContent value="qr-generator" className="space-y-4">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <QRCodeGenerator
+              onCodeGenerated={(qrData, imageData) => {
+                console.log('QR Code generated:', { qrData, imageData })
+              }}
+            />
+            
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Truck className="h-5 w-5 text-primary" />
+                  Supply Chain Tracking
+                </CardTitle>
+                <CardDescription>
+                  Track products through the entire supply chain using QR codes
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+                    <div className="flex items-center gap-2">
+                      <Leaf className="h-4 w-4 text-success" />
+                      <span className="text-sm">Farm Origin</span>
+                    </div>
+                    <CheckCircle className="h-4 w-4 text-success" />
+                  </div>
+                  
+                  <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+                    <div className="flex items-center gap-2">
+                      <Shield className="h-4 w-4 text-info" />
+                      <span className="text-sm">Quality Testing</span>
+                    </div>
+                    <CheckCircle className="h-4 w-4 text-success" />
+                  </div>
+                  
+                  <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+                    <div className="flex items-center gap-2">
+                      <Truck className="h-4 w-4 text-warning" />
+                      <span className="text-sm">Transportation</span>
+                    </div>
+                    <Clock className="h-4 w-4 text-warning" />
+                  </div>
+                  
+                  <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+                    <div className="flex items-center gap-2">
+                      <Globe className="h-4 w-4 text-muted-foreground" />
+                      <span className="text-sm">Retail/Consumer</span>
+                    </div>
+                    <Clock className="h-4 w-4 text-muted-foreground" />
+                  </div>
+                </div>
+                
+                <Button className="w-full">
+                  <QrCode className="h-4 w-4 mr-2" />
+                  Generate Traceability QR
+                </Button>
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="blockchain" className="space-y-4">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <BlockchainVerification
+              onVerificationComplete={(result) => {
+                console.log('Blockchain verification result:', result)
+              }}
+            />
+            
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Hash className="h-5 w-5 text-primary" />
+                  Smart Contract Integration
+                </CardTitle>
+                <CardDescription>
+                  Future-ready blockchain features for supply chain transparency
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="text-center p-4 bg-muted/30 rounded-lg">
+                    <Zap className="h-8 w-8 mx-auto mb-2 text-primary" />
+                    <p className="font-medium">Smart Contracts</p>
+                    <p className="text-xs text-muted-foreground">Automated compliance</p>
+                  </div>
+                  
+                  <div className="text-center p-4 bg-muted/30 rounded-lg">
+                    <Shield className="h-8 w-8 mx-auto mb-2 text-success" />
+                    <p className="font-medium">Immutable Records</p>
+                    <p className="text-xs text-muted-foreground">Tamper-proof data</p>
+                  </div>
+                  
+                  <div className="text-center p-4 bg-muted/30 rounded-lg">
+                    <Globe className="h-8 w-8 mx-auto mb-2 text-info" />
+                    <p className="font-medium">Public Verification</p>
+                    <p className="text-xs text-muted-foreground">Consumer transparency</p>
+                  </div>
+                  
+                  <div className="text-center p-4 bg-muted/30 rounded-lg">
+                    <FileCheck className="h-8 w-8 mx-auto mb-2 text-warning" />
+                    <p className="font-medium">Digital Signatures</p>
+                    <p className="text-xs text-muted-foreground">Cryptographic proof</p>
+                  </div>
+                </div>
+                
+                <div className="space-y-2">
+                  <Button variant="outline" className="w-full">
+                    <Hash className="h-4 w-4 mr-2" />
+                    Deploy Smart Contract
+                  </Button>
+                  
+                  <Button variant="outline" className="w-full">
+                    <Shield className="h-4 w-4 mr-2" />
+                    Create Digital Signature
+                  </Button>
+                </div>
+                
+                <div className="text-center text-sm text-muted-foreground bg-info/10 p-3 rounded-lg">
+                  <p className="font-medium text-info">Coming Soon</p>
+                  <p>Full blockchain integration will be available in the next release</p>
+                </div>
+              </CardContent>
+            </Card>
           </div>
         </TabsContent>
 
