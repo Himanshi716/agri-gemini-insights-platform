@@ -1,1 +1,61 @@
 project_id = "ugtfatgzpclrmgjhitqm"
+
+[api]
+enabled = true
+port = 54321
+schemas = ["public", "graphql_public"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000
+
+[auth]
+enabled = true
+port = 54322
+site_url = "http://localhost:3000"
+additional_redirect_urls = ["https://localhost:3000"]
+jwt_expiry = 3600
+enable_signup = true
+
+[auth.email]
+enable_signup = true
+double_confirm_changes = true
+enable_confirmations = false
+
+[db]
+port = 54320
+
+[edge_functions]
+enabled = true
+port = 54323
+
+[functions.compliance-analysis]
+verify_jwt = true
+
+[functions.crop-vision-analysis]
+verify_jwt = true
+
+[functions.document-intelligence]
+verify_jwt = true
+
+[functions.farmer-assistant]
+verify_jwt = true
+
+[functions.iot-data-ingestion]
+verify_jwt = true
+
+[functions.market-intelligence]
+verify_jwt = true
+
+[functions.blockchain-store]
+verify_jwt = true
+
+[functions.blockchain-verify]
+verify_jwt = false
+
+[storage]
+enabled = true
+port = 54324
+file_size_limit = "50MBs0"
+
+[studio]
+enabled = true
+port = 54325
