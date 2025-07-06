@@ -172,6 +172,33 @@ export function useIoTData() {
     }
   }, [toast])
 
+  // Generate demo data for testing
+  const generateDemoData = async () => {
+    try {
+      const { data, error } = await supabase.functions.invoke('iot-simulator')
+      
+      if (error) throw error
+      
+      toast({
+        title: "Demo Data Generated",
+        description: `Generated readings for ${data?.data?.readings_generated || 0} sensors`,
+      })
+      
+      // Refresh data after generation
+      setTimeout(() => {
+        fetchSensors()
+        fetchRecentReadings()
+      }, 1000)
+    } catch (error) {
+      console.error('Error generating demo data:', error)
+      toast({
+        title: "Error",
+        description: "Failed to generate demo data",
+        variant: "destructive"
+      })
+    }
+  }
+
   return {
     sensors,
     readings,
@@ -181,6 +208,7 @@ export function useIoTData() {
       fetchSensors()
       fetchRecentReadings()
       fetchAlerts()
-    }
+    },
+    generateDemoData
   }
 }

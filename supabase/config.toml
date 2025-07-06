@@ -51,6 +51,9 @@ verify_jwt = true
 [functions.blockchain-verify]
 verify_jwt = false
 
+[functions.iot-simulator]
+verify_jwt = true
+
 [storage]
 enabled = true
 port = 54324

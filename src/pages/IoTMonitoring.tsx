@@ -17,10 +17,12 @@ import { SensorChart } from "@/components/iot/SensorChart"
 import { AlertsList } from "@/components/iot/AlertsList"
 import { MetricsCard } from "@/components/dashboard/MetricsCard"
 import { useState } from "react"
+import { AddSensorDialog } from "@/components/iot/AddSensorDialog"
 
 export default function IoTMonitoring() {
-  const { sensors, readings, alerts, loading, refetch } = useIoTData()
+  const { sensors, readings, alerts, loading, refetch, generateDemoData } = useIoTData()
   const [selectedSensorId, setSelectedSensorId] = useState<string | null>(null)
+  const [showAddDialog, setShowAddDialog] = useState(false)
 
   const onlineSensors = sensors.filter(s => s.status === 'online').length
   const totalSensors = sensors.length
@@ -69,7 +71,10 @@ export default function IoTMonitoring() {
             <RefreshCw className="h-4 w-4 mr-2" />
             Refresh
           </Button>
-          <Button className="bg-primary text-primary-foreground hover:bg-primary/90">
+          <Button 
+            onClick={() => setShowAddDialog(true)}
+            className="bg-primary text-primary-foreground hover:bg-primary/90"
+          >
             <Zap className="h-4 w-4 mr-2" />
             Add Sensor
           </Button>
@@ -126,10 +131,20 @@ export default function IoTMonitoring() {
                   <p className="text-muted-foreground">
                     Get started by adding your first IoT sensor to monitor environmental conditions.
                   </p>
-                  <Button>
-                    <Zap className="h-4 w-4 mr-2" />
-                    Add First Sensor
-                  </Button>
+                  <div className="flex gap-2">
+                    <Button onClick={() => setShowAddDialog(true)}>
+                      <Zap className="h-4 w-4 mr-2" />
+                      Add First Sensor
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      onClick={generateDemoData}
+                      disabled={loading}
+                    >
+                      <Activity className="h-4 w-4 mr-2" />
+                      Generate Demo Data
+                    </Button>
+                  </div>
                 </div>
               </CardContent>
             </Card>
@@ -227,6 +242,12 @@ export default function IoTMonitoring() {
           </div>
         </TabsContent>
       </Tabs>
+
+      <AddSensorDialog
+        open={showAddDialog}
+        onOpenChange={setShowAddDialog}
+        onSuccess={refetch}
+      />
     </div>
   )
 }

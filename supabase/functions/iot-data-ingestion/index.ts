@@ -1,193 +1,174 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.7.1'
+import "https://deno.land/x/xhr@0.1.0/mod.ts";
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+};
+
+interface SensorReading {
+  sensor_id: string;
+  value: number;
+  unit: string;
+  metadata?: any;
+  device_id?: string;
 }
 
-const supabase = createClient(
-  Deno.env.get('SUPABASE_URL') ?? '',
-  Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
-)
+interface AlertThreshold {
+  min?: number;
+  max?: number;
+  critical_min?: number;
+  critical_max?: number;
+}
+
+const SENSOR_THRESHOLDS: Record<string, AlertThreshold> = {
+  temperature: { min: 10, max: 35, critical_min: 5, critical_max: 40 },
+  humidity: { min: 30, max: 80, critical_min: 20, critical_max: 90 },
+  soil_moisture: { min: 20, max: 80, critical_min: 10, critical_max: 90 },
+  ph: { min: 6.0, max: 7.5, critical_min: 5.0, critical_max: 8.5 },
+  light: { min: 200, max: 2000, critical_min: 100, critical_max: 3000 },
+  co2: { min: 300, max: 1000, critical_min: 200, critical_max: 1500 }
+};
 
 serve(async (req) => {
+  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders })
+    return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    const { sensorData, deviceId, batchData } = await req.json()
+    // Initialize Supabase client
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    const supabase = createClient(supabaseUrl, supabaseKey);
 
-    console.log('Processing IoT data for device:', deviceId)
+    const { readings } = await req.json() as { readings: SensorReading[] };
 
-    // Handle single sensor reading
-    if (sensorData && deviceId) {
-      const { data: sensor } = await supabase
+    if (!readings || !Array.isArray(readings)) {
+      return new Response(JSON.stringify({
+        success: false,
+        error: 'Invalid data format. Expected array of readings.'
+      }), {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    console.log(`Processing ${readings.length} sensor readings`);
+
+    const processedReadings = [];
+    const alerts = [];
+
+    for (const reading of readings) {
+      // Validate sensor exists
+      const { data: sensor, error: sensorError } = await supabase
         .from('iot_sensors')
-        .select('id, type, farm_id')
-        .eq('device_id', deviceId)
-        .single()
+        .select('id, name, type, farm_id')
+        .eq('id', reading.sensor_id)
+        .single();
 
-      if (!sensor) {
-        throw new Error(`Sensor not found for device: ${deviceId}`)
+      if (sensorError || !sensor) {
+        console.warn(`Sensor not found: ${reading.sensor_id}`);
+        continue;
       }
 
       // Insert sensor reading
-      const { error: insertError } = await supabase
+      const { data: insertedReading, error: readingError } = await supabase
         .from('sensor_readings')
         .insert({
-          sensor_id: sensor.id,
-          value: sensorData.value,
-          unit: sensorData.unit,
-          timestamp: sensorData.timestamp || new Date().toISOString(),
-          metadata: sensorData.metadata || {}
+          sensor_id: reading.sensor_id,
+          value: reading.value,
+          unit: reading.unit,
+          metadata: reading.metadata || {}
         })
+        .select()
+        .single();
 
-      if (insertError) {
-        throw insertError
+      if (readingError) {
+        console.error('Error inserting reading:', readingError);
+        continue;
       }
 
-      // Update sensor last reading time
-      const { error: updateError } = await supabase
+      processedReadings.push(insertedReading);
+
+      // Update sensor last reading timestamp
+      await supabase
         .from('iot_sensors')
         .update({ last_reading_at: new Date().toISOString() })
-        .eq('id', sensor.id)
+        .eq('id', reading.sensor_id);
 
-      if (updateError) {
-        console.error('Failed to update sensor timestamp:', updateError)
+      // Check for alerts
+      const threshold = SENSOR_THRESHOLDS[sensor.type];
+      if (threshold) {
+        let alertLevel = null;
+        let alertMessage = '';
+
+        if (reading.value <= (threshold.critical_min || -Infinity) || 
+            reading.value >= (threshold.critical_max || Infinity)) {
+          alertLevel = 'critical';
+          alertMessage = `Critical ${sensor.type} level: ${reading.value}${reading.unit}`;
+        } else if (reading.value <= (threshold.min || -Infinity) || 
+                   reading.value >= (threshold.max || Infinity)) {
+          alertLevel = 'warning';
+          alertMessage = `${sensor.type} outside normal range: ${reading.value}${reading.unit}`;
+        }
+
+        if (alertLevel) {
+          // Create alert document
+          const { error: alertError } = await supabase
+            .from('export_documents')
+            .insert({
+              farm_id: sensor.farm_id,
+              document_type: 'sensor_alert',
+              title: `${sensor.name} Alert`,
+              content: {
+                sensor_id: sensor.id,
+                sensor_name: sensor.name,
+                sensor_type: sensor.type,
+                alert_level: alertLevel,
+                message: alertMessage,
+                reading_value: reading.value,
+                reading_unit: reading.unit,
+                threshold: threshold,
+                timestamp: new Date().toISOString()
+              },
+              status: 'pending'
+            });
+
+          if (!alertError) {
+            alerts.push({
+              sensor: sensor.name,
+              level: alertLevel,
+              message: alertMessage
+            });
+          }
+        }
       }
-
-      // Check for alert conditions
-      await checkAlertConditions(sensor, sensorData)
-
-      return new Response(
-        JSON.stringify({ 
-          success: true, 
-          message: 'Sensor data recorded successfully',
-          sensorId: sensor.id
-        }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      )
     }
 
-    // Handle batch data insertion
-    if (batchData && Array.isArray(batchData)) {
-      const readings = []
-      const sensorUpdates = new Map()
+    console.log(`Successfully processed ${processedReadings.length} readings, generated ${alerts.length} alerts`);
 
-      for (const data of batchData) {
-        const { data: sensor } = await supabase
-          .from('iot_sensors')
-          .select('id, type, farm_id')
-          .eq('device_id', data.deviceId)
-          .single()
-
-        if (sensor) {
-          readings.push({
-            sensor_id: sensor.id,
-            value: data.value,
-            unit: data.unit,
-            timestamp: data.timestamp || new Date().toISOString(),
-            metadata: data.metadata || {}
-          })
-
-          sensorUpdates.set(sensor.id, new Date().toISOString())
-
-          // Check alerts for each reading
-          await checkAlertConditions(sensor, data)
-        }
+    return new Response(JSON.stringify({
+      success: true,
+      data: {
+        processed_readings: processedReadings.length,
+        total_readings: readings.length,
+        alerts_generated: alerts.length,
+        alerts: alerts
       }
-
-      // Batch insert readings
-      if (readings.length > 0) {
-        const { error: batchError } = await supabase
-          .from('sensor_readings')
-          .insert(readings)
-
-        if (batchError) {
-          throw batchError
-        }
-
-        // Update sensor timestamps
-        for (const [sensorId, timestamp] of sensorUpdates) {
-          await supabase
-            .from('iot_sensors')
-            .update({ last_reading_at: timestamp })
-            .eq('id', sensorId)
-        }
-      }
-
-      return new Response(
-        JSON.stringify({ 
-          success: true, 
-          message: `Processed ${readings.length} sensor readings`,
-          recordsProcessed: readings.length
-        }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      )
-    }
-
-    throw new Error('Invalid request: missing sensorData or batchData')
+    }), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
 
   } catch (error) {
-    console.error('IoT data ingestion error:', error)
-    return new Response(
-      JSON.stringify({ 
-        success: false, 
-        error: error.message 
-      }),
-      { 
-        status: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-      }
-    )
+    console.error('Error in iot-data-ingestion function:', error);
+    return new Response(JSON.stringify({
+      success: false,
+      error: error.message
+    }), {
+      status: 500,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
   }
-})
-
-// Check for alert conditions based on sensor type and value
-async function checkAlertConditions(sensor: any, sensorData: any) {
-  const alertThresholds = {
-    temperature: { min: 10, max: 35 },
-    humidity: { min: 30, max: 80 },
-    soil_moisture: { min: 20, max: 80 },
-    ph: { min: 6.0, max: 8.0 },
-    light: { min: 200, max: 2000 },
-    co2: { min: 300, max: 1500 }
-  }
-
-  const thresholds = alertThresholds[sensor.type as keyof typeof alertThresholds]
-  if (!thresholds) return
-
-  const value = parseFloat(sensorData.value)
-  let alertMessage = null
-
-  if (value < thresholds.min) {
-    alertMessage = `${sensor.type} level too low: ${value}${sensorData.unit} (min: ${thresholds.min}${sensorData.unit})`
-  } else if (value > thresholds.max) {
-    alertMessage = `${sensor.type} level too high: ${value}${sensorData.unit} (max: ${thresholds.max}${sensorData.unit})`
-  }
-
-  if (alertMessage) {
-    // Create alert document
-    await supabase
-      .from('export_documents')
-      .insert({
-        farm_id: sensor.farm_id,
-        document_type: 'sensor_alert',
-        title: `Sensor Alert - ${sensor.type} - ${new Date().toLocaleDateString()}`,
-        content: {
-          alert_message: alertMessage,
-          sensor_id: sensor.id,
-          sensor_type: sensor.type,
-          current_value: value,
-          unit: sensorData.unit,
-          thresholds,
-          timestamp: new Date().toISOString()
-        },
-        status: 'pending'
-      })
-
-    console.log('Alert generated:', alertMessage)
-  }
-}
+});
