@@ -1,11 +1,15 @@
 
-import { useState } from "react"
+import { useState, useRef } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { useToast } from "@/hooks/use-toast"
+import { useAuth } from "@/hooks/useAuth"
+import { useFarmData } from "@/hooks/useFarmData"
+import { supabase } from "@/integrations/supabase/client"
 import { 
   MessageSquare, 
   Brain, 
@@ -19,19 +23,29 @@ import {
   AlertTriangle,
   Bot,
   User,
-  Mic
+  Mic,
+  Upload,
+  Loader2
 } from "lucide-react"
 
-const chatHistory = [
+interface ChatMessage {
+  id: number
+  type: 'user' | 'assistant'
+  message: string
+  timestamp: string
+  image?: string
+}
+
+const chatHistory: ChatMessage[] = [
   {
     id: 1,
-    type: 'user',
+    type: 'user' as const,
     message: 'What are the optimal growing conditions for tomatoes?',
     timestamp: '2024-01-20 14:30'
   },
   {
     id: 2,
-    type: 'assistant',
+    type: 'assistant' as const,
     message: 'Optimal tomato growing conditions include: Temperature 65-75°F (18-24°C), pH 6.0-6.8, well-draining soil with organic matter, 6+ hours of direct sunlight, and consistent watering (1-2 inches per week).',
     timestamp: '2024-01-20 14:31'
   }
@@ -94,8 +108,102 @@ const quickActions = [
 ]
 
 export default function AIAssistant() {
-  const [messages, setMessages] = useState(chatHistory)
+  const [messages, setMessages] = useState<ChatMessage[]>(chatHistory)
   const [message, setMessage] = useState("")
+  const [loading, setLoading] = useState(false)
+  const [selectedImage, setSelectedImage] = useState<File | null>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
+  
+  const { toast } = useToast()
+  const { user } = useAuth()
+  const { farms } = useFarmData()
+
+  const sendMessage = async () => {
+    if (!message.trim() && !selectedImage) return
+    
+    setLoading(true)
+    const timestamp = new Date().toLocaleString()
+    const userMessage: ChatMessage = {
+      id: Date.now(),
+      type: 'user',
+      message: message.trim(),
+      timestamp,
+      image: selectedImage ? URL.createObjectURL(selectedImage) : undefined
+    }
+
+    setMessages(prev => [...prev, userMessage])
+    setMessage("")
+    
+    try {
+      let response;
+      
+      if (selectedImage) {
+        // Handle image analysis
+        const formData = new FormData()
+        formData.append('image', selectedImage)
+        formData.append('prompt', message || 'Analyze this crop image for any issues or recommendations')
+        formData.append('userId', user?.id || '')
+        formData.append('farmId', farms[0]?.id || '')
+
+        response = await supabase.functions.invoke('crop-vision-analysis', {
+          body: formData
+        })
+      } else {
+        // Handle text message
+        response = await supabase.functions.invoke('farmer-assistant', {
+          body: {
+            message: message,
+            userId: user?.id,
+            farmId: farms[0]?.id,
+            language: 'en'
+          }
+        })
+      }
+
+      if (response.error) {
+        throw new Error(response.error.message)
+      }
+
+      const assistantMessage: ChatMessage = {
+        id: Date.now() + 1,
+        type: 'assistant',
+        message: response.data.response || response.data.analysis || 'I apologize, but I encountered an issue processing your request.',
+        timestamp: new Date().toLocaleString()
+      }
+
+      setMessages(prev => [...prev, assistantMessage])
+      
+    } catch (error) {
+      console.error('Chat error:', error)
+      toast({
+        title: "Error",
+        description: "Failed to get AI response. Please try again.",
+        variant: "destructive"
+      })
+    } finally {
+      setLoading(false)
+      setSelectedImage(null)
+    }
+  }
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault()
+      sendMessage()
+    }
+  }
+
+  const selectQuickAction = (actionLabel: string) => {
+    const prompts: Record<string, string> = {
+      'Crop Health Check': 'Can you help me assess the health of my crops? What should I look for?',
+      'Pest Identification': 'I think I have pests in my crops. How can I identify and treat them?',
+      'Weather Forecast': 'How should I prepare my farm for upcoming weather conditions?',
+      'Market Prices': 'What are the current market trends for my crops?',
+      'Compliance Check': 'Help me understand the compliance requirements for my farm.'
+    }
+    
+    setMessage(prompts[actionLabel] || actionLabel)
+  }
 
   return (
     <div className="p-6 space-y-6">
@@ -158,21 +266,54 @@ export default function AIAssistant() {
             </CardContent>
             
             <div className="border-t p-4">
+              {selectedImage && (
+                <div className="mb-3 p-2 bg-muted rounded-lg">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-muted-foreground">Image selected: {selectedImage.name}</span>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setSelectedImage(null)}
+                    >
+                      Remove
+                    </Button>
+                  </div>
+                </div>
+              )}
               <div className="flex space-x-2">
                 <Input
                   placeholder="Ask me anything about farming..."
                   value={message}
                   onChange={(e) => setMessage(e.target.value)}
+                  onKeyPress={handleKeyPress}
                   className="flex-1"
+                  disabled={loading}
                 />
-                <Button size="icon" variant="outline">
-                  <Mic className="h-4 w-4" />
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => setSelectedImage(e.target.files?.[0] || null)}
+                  className="hidden"
+                />
+                <Button 
+                  size="icon" 
+                  variant="outline"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={loading}
+                >
+                  <Upload className="h-4 w-4" />
                 </Button>
-                <Button size="icon" variant="outline">
-                  <Image className="h-4 w-4" />
-                </Button>
-                <Button size="icon">
-                  <Send className="h-4 w-4" />
+                <Button 
+                  size="icon"
+                  onClick={sendMessage}
+                  disabled={loading || (!message.trim() && !selectedImage)}
+                >
+                  {loading ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Send className="h-4 w-4" />
+                  )}
                 </Button>
               </div>
             </div>
@@ -193,6 +334,8 @@ export default function AIAssistant() {
                   variant="outline"
                   className="w-full justify-start"
                   size="sm"
+                  onClick={() => selectQuickAction(action.label)}
+                  disabled={loading}
                 >
                   <action.icon className="mr-2 h-4 w-4" />
                   {action.label}

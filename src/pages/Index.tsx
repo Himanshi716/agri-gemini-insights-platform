@@ -68,9 +68,9 @@ export default function Index() {
           </div>
           <div className="flex items-center space-x-4">
             <Badge variant="secondary">Phase 1 Complete</Badge>
-            <Link to="/dashboard">
+            <Link to="/auth">
               <Button>
-                Enter Platform
+                Sign In
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
             </Link>
@@ -91,15 +91,15 @@ export default function Index() {
             compliance tracking, and export optimization with real-time IoT monitoring.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center mt-8">
-            <Link to="/dashboard">
+            <Link to="/auth">
               <Button size="lg" className="bg-primary text-primary-foreground hover:bg-primary/90">
-                Launch Dashboard
+                Get Started
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
             </Link>
-            <Link to="/assistant">
+            <Link to="/auth">
               <Button size="lg" variant="outline">
-                Try AI Assistant
+                Sign In
                 <MessageSquare className="ml-2 h-5 w-5" />
               </Button>
             </Link>
@@ -168,15 +168,15 @@ export default function Index() {
             Join thousands of farmers already using our platform to optimize their export operations
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link to="/dashboard">
+            <Link to="/auth">
               <Button size="lg" className="bg-primary text-primary-foreground hover:bg-primary/90">
                 Get Started Now
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
             </Link>
-            <Link to="/farms">
+            <Link to="/auth">
               <Button size="lg" variant="outline">
-                Explore Features
+                Sign In
               </Button>
             </Link>
           </div>

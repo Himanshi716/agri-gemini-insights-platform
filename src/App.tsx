@@ -12,6 +12,7 @@ import { Skeleton } from "./components/ui/skeleton";
 
 // Lazy load pages for code splitting
 const Index = lazy(() => import("./pages/Index"));
+const Auth = lazy(() => import("./pages/Auth"));
 const Dashboard = lazy(() => import("./pages/Dashboard"));
 const FarmManagement = lazy(() => import("./pages/FarmManagement"));
 const IoTMonitoring = lazy(() => import("./pages/IoTMonitoring"));
@@ -59,6 +60,7 @@ const App = () => (
             <Suspense fallback={<PageLoadingFallback />}>
               <Routes>
                 <Route path="/" element={<Index />} />
+                <Route path="/auth" element={<Auth />} />
                 <Route element={<AppLayout />}>
                   <Route path="/dashboard" element={<Dashboard />} />
                   <Route path="/farms" element={<FarmManagement />} />
