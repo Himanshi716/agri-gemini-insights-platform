@@ -51,6 +51,9 @@ verify_jwt = true
 [functions.blockchain-verify]
 verify_jwt = false
 
+[functions.weather-intelligence]
+verify_jwt = true
+
 [functions.iot-simulator]
 verify_jwt = true
 
