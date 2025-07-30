@@ -90,8 +90,8 @@ export default function Auth() {
         }
       } else {
         toast({
-          title: "Account created!",
-          description: "Please check your email to verify your account.",
+          title: "Check your email!",
+          description: "We've sent you a confirmation link to complete your registration.",
         })
       }
     } catch (error) {

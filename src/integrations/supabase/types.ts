@@ -512,6 +512,10 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: Database["public"]["Enums"]["user_role"]
       }
+      is_email_confirmed: {
+        Args: { user_id: string }
+        Returns: boolean
+      }
     }
     Enums: {
       compliance_status: "pending" | "approved" | "rejected" | "expired"
