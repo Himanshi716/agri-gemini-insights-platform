@@ -1,4 +1,4 @@
-import { Home, Leaf, Wifi, Shield, FileText, MessageSquare, BarChart3, Settings } from "lucide-react";
+import { Home, Leaf, Wifi, Shield, FileText, MessageSquare, BarChart3, Settings, Smartphone } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar } from "@/components/ui/sidebar";
 const navigationItems = [{
@@ -33,6 +33,10 @@ const navigationItems = [{
   title: "Settings",
   url: "/settings",
   icon: Settings
+}, {
+  title: "Production",
+  url: "/production",
+  icon: Smartphone
 }];
 export function AppSidebar() {
   return <Sidebar collapsible="icon">

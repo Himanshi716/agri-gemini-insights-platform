@@ -1,0 +1,23 @@
+{
+  "appId": "app.lovable.dbf643889e194f24bf36a21ae4146d01",
+  "appName": "agri-gemini-insights-platform",
+  "webDir": "dist",
+  "server": {
+    "url": "https://dbf64388-9e19-4f24-bf36-a21ae4146d01.lovableproject.com?forceHideBadge=true",
+    "cleartext": true
+  },
+  "plugins": {
+    "Camera": {
+      "permissions": ["camera", "storage"]
+    },
+    "Geolocation": {
+      "permissions": ["location"]
+    },
+    "Device": {
+      "permissions": []
+    },
+    "Network": {
+      "permissions": []
+    }
+  }
+}

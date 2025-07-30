@@ -21,6 +21,7 @@ const ExportDocuments = lazy(() => import("./pages/ExportDocuments"));
 const AIAssistant = lazy(() => import("./pages/AIAssistant"));
 const Analytics = lazy(() => import("./pages/Analytics"));
 const Settings = lazy(() => import("./pages/Settings"));
+const ProductionSettings = lazy(() => import("./pages/ProductionSettings"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient({
@@ -70,6 +71,7 @@ const App = () => (
                   <Route path="/assistant" element={<AIAssistant />} />
                   <Route path="/analytics" element={<Analytics />} />
                   <Route path="/settings" element={<Settings />} />
+                  <Route path="/production" element={<ProductionSettings />} />
                 </Route>
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
