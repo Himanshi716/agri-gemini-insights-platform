@@ -64,7 +64,18 @@ export default function Auth() {
     try {
       const redirectUrl = `${window.location.origin}/`
       
-      const { error } = await supabase.auth.signUp({
+      console.log('Attempting signup with:', { 
+        email, 
+        redirectUrl,
+        userData: {
+          first_name: firstName,
+          last_name: lastName,
+          phone: phone || undefined,
+          role: role
+        }
+      })
+      
+      const { data, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
@@ -78,7 +89,10 @@ export default function Auth() {
         }
       })
 
+      console.log('Signup response:', { data, error })
+
       if (error) {
+        console.error('Signup error details:', error)
         if (error.message.includes('already registered')) {
           toast({
             title: "Account exists",
@@ -89,9 +103,10 @@ export default function Auth() {
           throw error
         }
       } else {
+        console.log('Signup successful, user should receive email at:', email)
         toast({
           title: "Check your email!",
-          description: "We've sent you a confirmation link to complete your registration.",
+          description: `We've sent a confirmation link to ${email}. Please check your inbox and spam folder.`,
         })
       }
     } catch (error) {

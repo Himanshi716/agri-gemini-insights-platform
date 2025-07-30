@@ -10,8 +10,8 @@ max_rows = 1000
 [auth]
 enabled = true
 port = 54322
-site_url = "http://localhost:3000"
-additional_redirect_urls = ["https://localhost:3000"]
+site_url = "https://dbf64388-9e19-4f24-bf36-a21ae4146d01.lovableproject.com"
+additional_redirect_urls = ["https://dbf64388-9e19-4f24-bf36-a21ae4146d01.lovableproject.com", "http://localhost:3000"]
 jwt_expiry = 3600
 enable_signup = true
 
