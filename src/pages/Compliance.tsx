@@ -3,6 +3,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Progress } from "@/components/ui/progress"
+import { ComplianceManager } from "@/components/compliance/ComplianceManager"
 import { 
   Shield, 
   FileCheck, 
@@ -147,35 +148,7 @@ export default function Compliance() {
         </TabsContent>
 
         <TabsContent value="requirements" className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {complianceData.requirements.map((req, index) => (
-              <Card key={index} className="hover:shadow-md transition-shadow">
-                <CardHeader className="pb-3">
-                  <div className="flex items-center justify-between">
-                    <CardTitle className="text-lg">{req.category}</CardTitle>
-                    {req.critical > 0 && (
-                      <Badge variant="destructive">{req.critical} Critical</Badge>
-                    )}
-                  </div>
-                  <CardDescription>
-                    {req.completed} of {req.total} requirements completed
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-muted-foreground">Progress:</span>
-                      <span className="font-medium">{Math.round((req.completed / req.total) * 100)}%</span>
-                    </div>
-                    <Progress value={(req.completed / req.total) * 100} className="h-2" />
-                  </div>
-                  <Button size="sm" variant="outline" className="w-full">
-                    View Checklist
-                  </Button>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+          <ComplianceManager />
         </TabsContent>
 
         <TabsContent value="audits" className="space-y-4">

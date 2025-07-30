@@ -57,6 +57,9 @@ verify_jwt = true
 [functions.iot-simulator]
 verify_jwt = true
 
+[functions.analytics-engine]
+verify_jwt = true
+
 [storage]
 enabled = true
 port = 54324

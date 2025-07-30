@@ -6,6 +6,7 @@ import { ChartCard } from "@/components/analytics/ChartCard"
 import { ReportCard } from "@/components/analytics/ReportCard"
 import { AdvancedCharts } from "@/components/analytics/AdvancedCharts"
 import { ReportScheduler } from "@/components/analytics/ReportScheduler"
+import { RealTimeMonitor } from "@/components/analytics/RealTimeMonitor"
 import { BarChart3, Download, Filter, Zap } from "lucide-react"
 
 const performanceMetrics = [
@@ -210,21 +211,7 @@ export default function Analytics() {
         </TabsContent>
 
         <TabsContent value="realtime" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Real-time Monitoring</CardTitle>
-              <CardDescription>Live data streams from IoT sensors and farm operations</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="h-[400px] flex items-center justify-center bg-muted/50 rounded-lg">
-                <div className="text-center text-muted-foreground">
-                  <Zap className="h-16 w-16 mx-auto mb-4" />
-                  <h3 className="text-lg font-medium mb-2">Live Data Dashboard</h3>
-                  <p>Real-time sensor data and operational metrics</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          <RealTimeMonitor />
         </TabsContent>
       </Tabs>
     </div>
