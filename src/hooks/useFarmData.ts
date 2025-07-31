@@ -219,7 +219,7 @@ export function useFarmData() {
     }
   }
 
-  // Set up real-time subscriptions
+  // Set up real-time subscriptions with debouncing
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true)
@@ -228,6 +228,10 @@ export function useFarmData() {
     }
 
     fetchData()
+
+    // Debounce the refetch to prevent excessive calls
+    let farmRefetchTimeout: NodeJS.Timeout
+    let cropRefetchTimeout: NodeJS.Timeout
 
     // Subscribe to farm changes
     const farmsChannel = supabase
@@ -240,7 +244,10 @@ export function useFarmData() {
           table: 'farms'
         },
         () => {
-          fetchFarms()
+          clearTimeout(farmRefetchTimeout)
+          farmRefetchTimeout = setTimeout(() => {
+            fetchFarms()
+          }, 500) // 500ms debounce
         }
       )
       .subscribe()
@@ -256,16 +263,21 @@ export function useFarmData() {
           table: 'crops'
         },
         () => {
-          fetchCrops()
+          clearTimeout(cropRefetchTimeout)
+          cropRefetchTimeout = setTimeout(() => {
+            fetchCrops()
+          }, 500) // 500ms debounce
         }
       )
       .subscribe()
 
     return () => {
+      clearTimeout(farmRefetchTimeout)
+      clearTimeout(cropRefetchTimeout)
       supabase.removeChannel(farmsChannel)
       supabase.removeChannel(cropsChannel)
     }
-  }, [toast])
+  }, []) // Remove toast dependency to prevent unnecessary re-subscriptions
 
   return {
     farms,

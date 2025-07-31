@@ -8,6 +8,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useState } from "react"
 import { FileText, Download, QrCode, Shield, Globe } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
+import { useDocumentGeneration } from "@/hooks/useDocumentGeneration"
+import { useFarmData } from "@/hooks/useFarmData"
 
 interface DocumentTemplateProps {
   template: {
@@ -24,33 +26,65 @@ interface DocumentTemplateProps {
 
 export function DocumentTemplate({ template, onGenerate, onPreview }: DocumentTemplateProps) {
   const [formData, setFormData] = useState<Record<string, string>>({})
-  const [isGenerating, setIsGenerating] = useState(false)
   const { toast } = useToast()
+  const { generateDocument, previewDocument, isGenerating } = useDocumentGeneration()
+  const { farms } = useFarmData()
 
   const handleFieldChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }))
   }
 
-  const handleGenerate = async () => {
-    setIsGenerating(true)
-    try {
-      await onGenerate({
-        template: template.id,
-        data: formData,
-        type: template.type
-      })
+  const handleGenerate = async (includeQR = false) => {
+    if (!farms[0]?.id) {
       toast({
-        title: "Document Generated",
-        description: `${template.name} has been generated successfully.`
-      })
-    } catch (error) {
-      toast({
-        title: "Generation Failed",
-        description: "Failed to generate document. Please try again.",
+        title: "Error",
+        description: "Please select a farm first",
         variant: "destructive"
       })
-    } finally {
-      setIsGenerating(false)
+      return
+    }
+
+    const result = await generateDocument({
+      templateId: template.id,
+      farmId: farms[0].id,
+      documentType: template.type,
+      data: formData,
+      includeQR
+    })
+
+    if (result) {
+      onGenerate({
+        template: template.id,
+        data: formData,
+        type: template.type,
+        document: result
+      })
+    }
+  }
+
+  const handlePreview = async () => {
+    if (!farms[0]?.id) {
+      toast({
+        title: "Error", 
+        description: "Please select a farm first",
+        variant: "destructive"
+      })
+      return
+    }
+
+    const preview = await previewDocument({
+      templateId: template.id,
+      farmId: farms[0].id,
+      documentType: template.type,
+      data: formData
+    })
+
+    if (preview) {
+      onPreview({
+        template: template.id,
+        data: formData,
+        preview
+      })
     }
   }
 
@@ -136,7 +170,7 @@ export function DocumentTemplate({ template, onGenerate, onPreview }: DocumentTe
 
         <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t">
           <Button
-            onClick={() => onPreview({ template: template.id, data: formData })}
+            onClick={handlePreview}
             variant="outline"
             className="flex-1"
           >
@@ -145,7 +179,7 @@ export function DocumentTemplate({ template, onGenerate, onPreview }: DocumentTe
           </Button>
           
           <Button
-            onClick={handleGenerate}
+            onClick={() => handleGenerate(false)}
             disabled={isGenerating}
             className="flex-1"
           >
@@ -160,11 +194,8 @@ export function DocumentTemplate({ template, onGenerate, onPreview }: DocumentTe
           </Button>
           
           <Button
-            onClick={() => onGenerate({ 
-              template: template.id, 
-              data: formData, 
-              includeQR: true 
-            })}
+            onClick={() => handleGenerate(true)}
+            disabled={isGenerating}
             variant="outline"
             className="flex-1"
           >

@@ -92,6 +92,57 @@ export type Database = {
         }
         Relationships: []
       }
+      compliance_certificates: {
+        Row: {
+          category: string
+          certificate_file_url: string | null
+          certificate_name: string
+          certificate_number: string | null
+          compliance_score: number | null
+          created_at: string | null
+          expiry_date: string | null
+          farm_id: string
+          id: string
+          issue_date: string | null
+          issuing_authority: string
+          notes: string | null
+          status: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          category: string
+          certificate_file_url?: string | null
+          certificate_name: string
+          certificate_number?: string | null
+          compliance_score?: number | null
+          created_at?: string | null
+          expiry_date?: string | null
+          farm_id: string
+          id?: string
+          issue_date?: string | null
+          issuing_authority: string
+          notes?: string | null
+          status?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          category?: string
+          certificate_file_url?: string | null
+          certificate_name?: string
+          certificate_number?: string | null
+          compliance_score?: number | null
+          created_at?: string | null
+          expiry_date?: string | null
+          farm_id?: string
+          id?: string
+          issue_date?: string | null
+          issuing_authority?: string
+          notes?: string | null
+          status?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       compliance_records: {
         Row: {
           audit_notes: string | null
@@ -234,6 +285,36 @@ export type Database = {
           },
         ]
       }
+      document_templates: {
+        Row: {
+          created_at: string | null
+          id: string
+          is_active: boolean | null
+          template_config: Json
+          template_name: string
+          template_type: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          template_config?: Json
+          template_name: string
+          template_type: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          template_config?: Json
+          template_name?: string
+          template_type?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       export_documents: {
         Row: {
           blockchain_hash: string | null
@@ -339,6 +420,54 @@ export type Database = {
           status?: Database["public"]["Enums"]["farm_status"]
           updated_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      iot_devices: {
+        Row: {
+          battery_level: number | null
+          connection_status: string | null
+          created_at: string | null
+          device_address: string | null
+          device_name: string
+          device_type: string
+          farm_id: string
+          firmware_version: string | null
+          id: string
+          is_active: boolean | null
+          last_sync: string | null
+          metadata: Json | null
+          updated_at: string | null
+        }
+        Insert: {
+          battery_level?: number | null
+          connection_status?: string | null
+          created_at?: string | null
+          device_address?: string | null
+          device_name: string
+          device_type: string
+          farm_id: string
+          firmware_version?: string | null
+          id?: string
+          is_active?: boolean | null
+          last_sync?: string | null
+          metadata?: Json | null
+          updated_at?: string | null
+        }
+        Update: {
+          battery_level?: number | null
+          connection_status?: string | null
+          created_at?: string | null
+          device_address?: string | null
+          device_name?: string
+          device_type?: string
+          farm_id?: string
+          firmware_version?: string | null
+          id?: string
+          is_active?: boolean | null
+          last_sync?: string | null
+          metadata?: Json | null
+          updated_at?: string | null
         }
         Relationships: []
       }
@@ -459,6 +588,48 @@ export type Database = {
           metadata?: Json | null
           sensor_id?: string
           timestamp?: string | null
+          unit?: string
+          value?: number
+        }
+        Relationships: []
+      }
+      sensor_data_queue: {
+        Row: {
+          created_at: string | null
+          device_id: string | null
+          id: string
+          metadata: Json | null
+          recorded_at: string
+          sensor_id: string | null
+          sensor_type: string
+          sync_status: string | null
+          synced_at: string | null
+          unit: string
+          value: number
+        }
+        Insert: {
+          created_at?: string | null
+          device_id?: string | null
+          id?: string
+          metadata?: Json | null
+          recorded_at: string
+          sensor_id?: string | null
+          sensor_type: string
+          sync_status?: string | null
+          synced_at?: string | null
+          unit: string
+          value: number
+        }
+        Update: {
+          created_at?: string | null
+          device_id?: string | null
+          id?: string
+          metadata?: Json | null
+          recorded_at?: string
+          sensor_id?: string | null
+          sensor_type?: string
+          sync_status?: string | null
+          synced_at?: string | null
           unit?: string
           value?: number
         }

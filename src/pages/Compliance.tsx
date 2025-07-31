@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Progress } from "@/components/ui/progress"
 import { ComplianceManager } from "@/components/compliance/ComplianceManager"
+import { ComplianceCertificateManager } from "@/components/compliance/ComplianceCertificateManager"
 import { 
   Shield, 
   FileCheck, 
@@ -119,32 +120,7 @@ export default function Compliance() {
         </TabsList>
 
         <TabsContent value="certifications" className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {complianceData.certifications.map((cert, index) => (
-              <Card key={index} className="hover:shadow-md transition-shadow">
-                <CardHeader className="pb-3">
-                  <div className="flex items-center justify-between">
-                    <CardTitle className="text-lg">{cert.name}</CardTitle>
-                    {getStatusBadge(cert.status)}
-                  </div>
-                  <CardDescription>Expires: {cert.expires}</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-muted-foreground">Compliance Score:</span>
-                      <span className="font-medium">{cert.score}%</span>
-                    </div>
-                    <Progress value={cert.score} className="h-2" />
-                  </div>
-                  <Button size="sm" variant="outline" className="w-full">
-                    <FileCheck className="h-4 w-4 mr-2" />
-                    View Details
-                  </Button>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+          <ComplianceCertificateManager />
         </TabsContent>
 
         <TabsContent value="requirements" className="space-y-4">

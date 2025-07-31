@@ -17,7 +17,7 @@ serve(async (req) => {
   }
 
   try {
-    const { message, userId, farmId, language = 'en' } = await req.json()
+    const { message, userId, farmId, language = 'en', iotContext } = await req.json()
     const geminiApiKey = Deno.env.get('GEMINI_API_KEY')
 
     if (!geminiApiKey) {
@@ -54,6 +54,23 @@ FARM CONTEXT:
       }
     }
 
+    // Build IoT context if available
+    let iotContextString = ''
+    if (iotContext) {
+      iotContextString = `
+IOT SENSOR DATA:
+- Total Sensors: ${iotContext.sensor_summary.total_sensors}
+- Online Sensors: ${iotContext.sensor_summary.online_sensors}
+- Active Alerts: ${iotContext.sensor_summary.active_alerts}
+
+Current Sensor Readings:
+${iotContext.sensors.map(s => `- ${s.name} (${s.type}): ${s.latest_reading ? `${s.latest_reading.value}${s.latest_reading.unit}` : 'No recent data'} [${s.status}]`).join('\n')}
+
+Recent Alerts:
+${iotContext.recent_alerts.map(alert => `- ${alert.sensor_name}: ${alert.message}`).join('\n') || 'No recent alerts'}
+`
+    }
+
     const systemPrompt = `You are AgriBot, an expert agricultural AI assistant helping farmers optimize their operations. You provide practical, science-based advice on:
 
 - Crop management and optimization
@@ -65,8 +82,11 @@ FARM CONTEXT:
 - Export documentation requirements
 - Sustainable farming practices
 - Market trends and pricing insights
+- IoT sensor data analysis and recommendations
 
 ${farmContext}
+
+${iotContextString}
 
 GUIDELINES:
 - Always provide actionable, practical advice
@@ -76,6 +96,8 @@ GUIDELINES:
 - Explain the reasoning behind your recommendations
 - Ask clarifying questions when needed
 - Be encouraging and supportive
+- When IoT data is available, reference specific sensor readings in your advice
+- Alert farmers to any concerning sensor readings or trends
 - ${language !== 'en' ? `Respond in ${language} language` : 'Respond in English'}
 
 Keep responses focused and helpful for busy farmers.`

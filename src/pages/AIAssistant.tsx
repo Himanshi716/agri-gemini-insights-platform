@@ -9,6 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useToast } from "@/hooks/use-toast"
 import { useAuth } from "@/hooks/useAuth"
 import { useFarmData } from "@/hooks/useFarmData"
+import { useIoTData } from "@/hooks/useIoTData"
 import { supabase } from "@/integrations/supabase/client"
 import { 
   MessageSquare, 
@@ -117,6 +118,7 @@ export default function AIAssistant() {
   const { toast } = useToast()
   const { user } = useAuth()
   const { farms } = useFarmData()
+  const { sensors, readings, alerts } = useIoTData()
 
   const sendMessage = async () => {
     if (!message.trim() && !selectedImage) return
@@ -149,13 +151,30 @@ export default function AIAssistant() {
           body: formData
         })
       } else {
-        // Handle text message
+        // Gather IoT context for better AI responses
+        const iotContext = {
+          sensors: sensors.map(s => ({
+            name: s.name,
+            type: s.type,
+            status: s.status,
+            latest_reading: s.latest_reading
+          })),
+          recent_alerts: alerts.slice(0, 5),
+          sensor_summary: {
+            total_sensors: sensors.length,
+            online_sensors: sensors.filter(s => s.status === 'online').length,
+            active_alerts: alerts.length
+          }
+        }
+
+        // Handle text message with IoT context
         response = await supabase.functions.invoke('farmer-assistant', {
           body: {
             message: message,
             userId: user?.id,
             farmId: farms[0]?.id,
-            language: 'en'
+            language: 'en',
+            iotContext
           }
         })
       }
