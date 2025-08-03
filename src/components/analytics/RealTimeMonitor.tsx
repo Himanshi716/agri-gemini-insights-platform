@@ -1,8 +1,10 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { Switch } from "@/components/ui/switch"
 import { useRealTimeData } from "@/hooks/useRealTimeData"
 import { useIoTData } from "@/hooks/useIoTData"
+import { useIoTDataStream } from "@/hooks/useIoTDataStream"
 import { 
   Activity, 
   Wifi, 
@@ -10,13 +12,38 @@ import {
   Thermometer, 
   Droplets, 
   Zap,
-  Clock
+  Clock,
+  Signal,
+  SignalHigh,
+  TrendingUp,
+  Play,
+  Pause
 } from "lucide-react"
 import { formatDistanceToNow } from "date-fns"
+import { useState, useEffect } from "react"
 
 export function RealTimeMonitor() {
   const { realTimeData, isConnected, simulateReading } = useRealTimeData()
   const { sensors } = useIoTData()
+  const { 
+    streamData, 
+    realtimeReadings, 
+    isWebSocketConnected,
+    subscribeSensor,
+    simulateDataStream 
+  } = useIoTDataStream()
+  
+  const [isMonitoring, setIsMonitoring] = useState(true)
+  const [selectedSensors, setSelectedSensors] = useState<string[]>([])
+
+  // Auto-subscribe to first sensor for demo
+  useEffect(() => {
+    if (isWebSocketConnected && sensors.length > 0 && selectedSensors.length === 0) {
+      const firstSensorId = sensors[0].id
+      subscribeSensor(firstSensorId)
+      setSelectedSensors([firstSensorId])
+    }
+  }, [isWebSocketConnected, sensors, selectedSensors.length, subscribeSensor])
 
   const getIcon = (dataType: string) => {
     switch (dataType) {
@@ -80,6 +107,35 @@ export function RealTimeMonitor() {
     }
   }
 
+  const handleWebSocketSimulate = () => {
+    if (selectedSensors.length > 0 && isWebSocketConnected) {
+      selectedSensors.forEach(sensorId => {
+        simulateDataStream(sensorId, 30000) // 30 seconds of simulation
+      })
+    }
+  }
+
+  const toggleMonitoring = () => {
+    setIsMonitoring(!isMonitoring)
+  }
+
+  // Combine real-time data sources
+  const combinedData = [
+    ...realtimeReadings.map(r => ({
+      id: r.sensor_id + r.timestamp,
+      sensor_id: r.sensor_id,
+      data_type: r.sensor_type,
+      value: r.reading.value,
+      unit: r.reading.unit,
+      timestamp: r.timestamp,
+      source: 'websocket' as const
+    })),
+    ...realTimeData.map(r => ({
+      ...r,
+      source: 'legacy' as const
+    }))
+  ].sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
+
   return (
     <Card>
       <CardHeader>
@@ -87,40 +143,64 @@ export function RealTimeMonitor() {
           <div>
             <CardTitle className="flex items-center gap-2">
               <Activity className="h-5 w-5" />
-              Real-Time Data Stream
+              Enhanced Real-Time Monitor
             </CardTitle>
-            <CardDescription>Live sensor readings and updates</CardDescription>
+            <CardDescription>Live sensor readings with WebSocket streaming</CardDescription>
           </div>
           <div className="flex items-center gap-2">
+            <Badge variant={isWebSocketConnected ? "secondary" : "outline"} className="flex items-center gap-1">
+              {isWebSocketConnected ? <SignalHigh className="h-3 w-3" /> : <Signal className="h-3 w-3" />}
+              WebSocket {isWebSocketConnected ? 'Live' : 'Offline'}
+            </Badge>
             <Badge variant={isConnected ? "secondary" : "destructive"} className="flex items-center gap-1">
               {isConnected ? <Wifi className="h-3 w-3" /> : <WifiOff className="h-3 w-3" />}
-              {isConnected ? 'Connected' : 'Disconnected'}
+              Legacy {isConnected ? 'Connected' : 'Offline'}
             </Badge>
-            <Button size="sm" onClick={handleSimulateData} disabled={sensors.length === 0}>
-              <Zap className="h-4 w-4 mr-1" />
-              Simulate
-            </Button>
+            <div className="flex items-center gap-2">
+              <Switch checked={isMonitoring} onCheckedChange={toggleMonitoring} />
+              <span className="text-sm">{isMonitoring ? 'Active' : 'Paused'}</span>
+            </div>
           </div>
         </div>
       </CardHeader>
       <CardContent>
-        {realTimeData.length === 0 ? (
+        <div className="mb-4 flex gap-2">
+          <Button size="sm" onClick={handleSimulateData} disabled={sensors.length === 0}>
+            <Zap className="h-4 w-4 mr-1" />
+            Legacy Simulate
+          </Button>
+          <Button 
+            size="sm" 
+            onClick={handleWebSocketSimulate} 
+            disabled={!isWebSocketConnected || selectedSensors.length === 0}
+          >
+            <TrendingUp className="h-4 w-4 mr-1" />
+            WebSocket Stream
+          </Button>
+        </div>
+        {combinedData.length === 0 ? (
           <div className="text-center py-8">
             <Activity className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
             <h3 className="text-lg font-medium mb-2">No Real-Time Data</h3>
             <p className="text-muted-foreground mb-4">
-              Waiting for sensor readings to stream in real-time
+              Waiting for sensor readings to stream in real-time via WebSocket or legacy channels
             </p>
             {sensors.length > 0 && (
-              <Button onClick={handleSimulateData}>
-                <Zap className="h-4 w-4 mr-2" />
-                Generate Sample Data
-              </Button>
+              <div className="flex justify-center gap-2">
+                <Button onClick={handleSimulateData}>
+                  <Zap className="h-4 w-4 mr-2" />
+                  Legacy Simulate
+                </Button>
+                <Button onClick={handleWebSocketSimulate} disabled={!isWebSocketConnected}>
+                  <TrendingUp className="h-4 w-4 mr-2" />
+                  WebSocket Stream
+                </Button>
+              </div>
             )}
           </div>
         ) : (
           <div className="space-y-3 max-h-96 overflow-y-auto">
-            {realTimeData.slice(0, 20).map((reading) => {
+            {isMonitoring && combinedData.slice(0, 20).map((reading) => {
               const sensor = sensors.find(s => s.id === reading.sensor_id)
               return (
                 <div 
@@ -130,7 +210,12 @@ export function RealTimeMonitor() {
                   <div className="flex items-center gap-3">
                     {getIcon(reading.data_type)}
                     <div>
-                      <p className="font-medium">{sensor?.name || 'Unknown Sensor'}</p>
+                      <div className="flex items-center gap-2">
+                        <p className="font-medium">{sensor?.name || 'Unknown Sensor'}</p>
+                        <Badge variant="outline" className="text-xs">
+                          {reading.source}
+                        </Badge>
+                      </div>
                       <p className="text-sm text-muted-foreground capitalize">
                         {reading.data_type.replace('_', ' ')}
                       </p>
@@ -149,6 +234,13 @@ export function RealTimeMonitor() {
                 </div>
               )
             })}
+            
+            {!isMonitoring && (
+              <div className="text-center py-4 text-muted-foreground">
+                <Pause className="h-8 w-8 mx-auto mb-2" />
+                <p>Monitoring paused</p>
+              </div>
+            )}
           </div>
         )}
       </CardContent>

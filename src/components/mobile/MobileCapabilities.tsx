@@ -1,9 +1,11 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { Alert, AlertDescription } from "@/components/ui/alert"
 import { useNativeCapabilities } from "@/hooks/useNativeCapabilities"
+import { useIoTDataStream } from "@/hooks/useIoTDataStream"
 import { useToast } from "@/hooks/use-toast"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { 
   Camera, 
   MapPin, 
@@ -13,7 +15,13 @@ import {
   CheckCircle,
   XCircle,
   Download,
-  Share2
+  Share2,
+  Battery,
+  Vibrate,
+  RefreshCw,
+  AlertTriangle,
+  Upload,
+  Database
 } from "lucide-react"
 
 export function MobileCapabilities() {
@@ -23,13 +31,74 @@ export function MobileCapabilities() {
     networkStatus, 
     takePhoto, 
     getCurrentLocation, 
-    isNativeApp 
+    isNativeApp
   } = useNativeCapabilities()
+  
+  const { 
+    isWebSocketConnected, 
+    streamData, 
+    sendDataBatch 
+  } = useIoTDataStream()
   
   const { toast } = useToast()
   const [loading, setLoading] = useState(false)
   const [lastPhoto, setLastPhoto] = useState<string | null>(null)
   const [lastLocation, setLastLocation] = useState<any>(null)
+  const [batteryInfo, setBatteryInfo] = useState<any>(null)
+  const [offlineData, setOfflineData] = useState<any[]>([])
+  const [syncStatus, setSyncStatus] = useState<'idle' | 'syncing' | 'error'>('idle')
+
+  // Simulate offline data collection
+  useEffect(() => {
+    if (!networkStatus?.connected && streamData.length > 0) {
+      const newOfflineData = streamData.slice(-5)
+      setOfflineData(prev => [...prev, ...newOfflineData])
+    }
+  }, [networkStatus?.connected, streamData])
+
+  // Auto-sync when back online
+  useEffect(() => {
+    if (networkStatus?.connected && offlineData.length > 0 && syncStatus === 'idle') {
+      syncOfflineData()
+    }
+  }, [networkStatus?.connected, offlineData.length, syncStatus])
+
+  const syncOfflineData = async () => {
+    if (offlineData.length === 0) return
+
+    setSyncStatus('syncing')
+    try {
+      // Simulate syncing offline data
+      for (const data of offlineData.slice(0, 10)) {
+        if (data.sensor_id) {
+          sendDataBatch({
+            sensor_id: data.sensor_id,
+            readings: [{
+              data_type: data.data_type,
+              value: data.value,
+              unit: data.unit,
+              timestamp: data.timestamp,
+              metadata: { ...data.metadata, offline_sync: true }
+            }]
+          })
+        }
+      }
+      
+      setOfflineData([])
+      setSyncStatus('idle')
+      toast({
+        title: "✅ Sync Complete",
+        description: "Offline data has been synchronized",
+      })
+    } catch (error) {
+      setSyncStatus('error')
+      toast({
+        title: "❌ Sync Failed",
+        description: "Failed to sync offline data",
+        variant: "destructive"
+      })
+    }
+  }
 
   const handleTakePhoto = async () => {
     if (!capabilities.camera) {
@@ -93,6 +162,23 @@ export function MobileCapabilities() {
     }
   }
 
+  const handleGetBattery = async () => {
+    // Mock battery info since getBatteryInfo is not available
+    setBatteryInfo({ level: Math.random(), isCharging: Math.random() > 0.5 })
+    toast({
+      title: "🔋 Battery Info",
+      description: "Mock battery information displayed",
+    })
+  }
+
+  const handleVibrate = () => {
+    // Mock vibration since vibrate is not available
+    toast({
+      title: "📳 Vibration Test", 
+      description: "Mock vibration activated",
+    })
+  }
+
   const getCapabilityIcon = (available: boolean) => {
     return available ? (
       <CheckCircle className="h-4 w-4 text-success" />
@@ -119,6 +205,13 @@ export function MobileCapabilities() {
             <span className="text-sm">Platform Type:</span>
             <Badge variant={isNativeApp() ? "secondary" : "outline"}>
               {isNativeApp() ? "Native Mobile App" : "Web Browser"}
+            </Badge>
+          </div>
+
+          <div className="flex items-center justify-between">
+            <span className="text-sm">WebSocket:</span>
+            <Badge variant={isWebSocketConnected ? "secondary" : "destructive"}>
+              {isWebSocketConnected ? "Connected" : "Disconnected"}
             </Badge>
           </div>
           
@@ -158,6 +251,17 @@ export function MobileCapabilities() {
               </div>
             </div>
           )}
+
+          {/* Offline Data Alert */}
+          {offlineData.length > 0 && (
+            <Alert>
+              <AlertTriangle className="h-4 w-4" />
+              <AlertDescription>
+                {offlineData.length} readings stored offline. 
+                {networkStatus?.connected ? ' Syncing...' : ' Will sync when online.'}
+              </AlertDescription>
+            </Alert>
+          )}
         </CardContent>
       </Card>
 
@@ -195,12 +299,72 @@ export function MobileCapabilities() {
             
             <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
               <div className="flex items-center gap-2">
-                <Wifi className="h-4 w-4" />
-                <span className="text-sm">Network</span>
+                <Battery className="h-4 w-4" />
+                <span className="text-sm">Battery</span>
               </div>
-              {getCapabilityIcon(capabilities.network)}
+              {getCapabilityIcon(capabilities.device)}
+            </div>
+            
+            <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+              <div className="flex items-center gap-2">
+                <Vibrate className="h-4 w-4" />
+                <span className="text-sm">Vibration</span>
+              </div>
+              {getCapabilityIcon(capabilities.device)}
+            </div>
+            
+            <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+              <div className="flex items-center gap-2">
+                <Database className="h-4 w-4" />
+                <span className="text-sm">Offline Storage</span>
+              </div>
+              {getCapabilityIcon(true)}
             </div>
           </div>
+
+          {/* Native Feature Actions */}
+          <div className="grid grid-cols-2 gap-2">
+            <Button 
+              size="sm" 
+              variant="outline"
+              onClick={handleGetBattery}
+              disabled={!capabilities.device}
+            >
+              <Battery className="h-3 w-3 mr-1" />
+              Battery
+            </Button>
+            
+            <Button 
+              size="sm" 
+              variant="outline"
+              onClick={handleVibrate}
+              disabled={!capabilities.device}
+            >
+              <Vibrate className="h-3 w-3 mr-1" />
+              Vibrate
+            </Button>
+            
+            <Button 
+              size="sm" 
+              variant="outline"
+              onClick={syncOfflineData}
+              disabled={syncStatus === 'syncing' || offlineData.length === 0}
+              className="col-span-2"
+            >
+              <RefreshCw className="h-3 w-3 mr-1" />
+              {syncStatus === 'syncing' ? 'Syncing...' : `Sync ${offlineData.length} Records`}
+            </Button>
+          </div>
+
+          {batteryInfo && (
+            <div className="p-3 bg-muted/50 rounded-lg">
+              <div className="text-sm text-muted-foreground mb-2">Battery Status:</div>
+              <div className="grid grid-cols-2 gap-2 text-xs">
+                <div>Level: {Math.round((batteryInfo.level || 0) * 100)}%</div>
+                <div>Charging: {batteryInfo.isCharging ? 'Yes' : 'No'}</div>
+              </div>
+            </div>
+          )}
         </CardContent>
       </Card>
 
