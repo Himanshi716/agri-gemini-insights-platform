@@ -42,6 +42,9 @@ verify_jwt = true
 [functions.iot-data-ingestion]
 verify_jwt = true
 
+[functions.iot-websocket-stream]
+verify_jwt = false
+
 [functions.market-intelligence]
 verify_jwt = true
 

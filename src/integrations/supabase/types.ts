@@ -423,6 +423,107 @@ export type Database = {
         }
         Relationships: []
       }
+      iot_data_aggregates: {
+        Row: {
+          aggregation_type: string
+          avg_value: number | null
+          count_readings: number
+          created_at: string | null
+          data_type: string
+          first_reading: string | null
+          id: string
+          last_reading: string | null
+          max_value: number | null
+          min_value: number | null
+          sensor_id: string
+          sum_value: number | null
+          time_bucket: string
+        }
+        Insert: {
+          aggregation_type: string
+          avg_value?: number | null
+          count_readings?: number
+          created_at?: string | null
+          data_type: string
+          first_reading?: string | null
+          id?: string
+          last_reading?: string | null
+          max_value?: number | null
+          min_value?: number | null
+          sensor_id: string
+          sum_value?: number | null
+          time_bucket: string
+        }
+        Update: {
+          aggregation_type?: string
+          avg_value?: number | null
+          count_readings?: number
+          created_at?: string | null
+          data_type?: string
+          first_reading?: string | null
+          id?: string
+          last_reading?: string | null
+          max_value?: number | null
+          min_value?: number | null
+          sensor_id?: string
+          sum_value?: number | null
+          time_bucket?: string
+        }
+        Relationships: []
+      }
+      iot_data_stream: {
+        Row: {
+          batch_id: string | null
+          data_type: string
+          device_id: string | null
+          id: string
+          metadata: Json | null
+          processed_at: string | null
+          quality_score: number | null
+          sensor_id: string
+          stream_sequence: number
+          timestamp: string
+          unit: string
+          value: number
+        }
+        Insert: {
+          batch_id?: string | null
+          data_type: string
+          device_id?: string | null
+          id?: string
+          metadata?: Json | null
+          processed_at?: string | null
+          quality_score?: number | null
+          sensor_id: string
+          stream_sequence?: number
+          timestamp?: string
+          unit: string
+          value: number
+        }
+        Update: {
+          batch_id?: string | null
+          data_type?: string
+          device_id?: string | null
+          id?: string
+          metadata?: Json | null
+          processed_at?: string | null
+          quality_score?: number | null
+          sensor_id?: string
+          stream_sequence?: number
+          timestamp?: string
+          unit?: string
+          value?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "iot_data_stream_device_id_fkey"
+            columns: ["device_id"]
+            isOneToOne: false
+            referencedRelation: "iot_devices"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       iot_devices: {
         Row: {
           battery_level: number | null
@@ -735,6 +836,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      aggregate_iot_data: {
+        Args: { aggregation_period?: string }
+        Returns: number
+      }
       calculate_compliance_score: {
         Args: { farm_id_param: string }
         Returns: number
