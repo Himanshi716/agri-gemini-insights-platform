@@ -117,13 +117,15 @@ export function useIoTWebSocket() {
       setSocket(ws)
     } catch (error) {
       console.error('Error creating WebSocket connection:', error)
-      toast({
-        title: "❌ Connection Failed",
-        description: "Unable to establish IoT stream connection",
-        variant: "destructive"
-      })
+      connectionRef.current = false
+      
+      showNotification(
+        "❌ Connection Failed",
+        "Unable to establish IoT stream connection",
+        "destructive"
+      )
     }
-  }, [toast])
+  }, [showNotification])
 
   const disconnect = useCallback(() => {
     if (reconnectTimeoutRef.current) {
@@ -160,19 +162,19 @@ export function useIoTWebSocket() {
 
       case 'subscription_confirmed':
         console.log(`Subscribed to sensor: ${message.sensor_name} (${message.sensor_id})`)
-        toast({
-          title: "📡 Sensor Subscribed",
-          description: `Now streaming data from ${message.sensor_name}`,
-        })
+        showNotification(
+          "📡 Sensor Subscribed",
+          `Now streaming data from ${message.sensor_name}`
+        )
         break
 
       case 'subscription_error':
         console.error('Subscription error:', message.message)
-        toast({
-          title: "❌ Subscription Failed",
-          description: message.message,
-          variant: "destructive"
-        })
+        showNotification(
+          "❌ Subscription Failed",
+          message.message,
+          "destructive"
+        )
         break
 
       case 'batch_processed':
@@ -189,17 +191,17 @@ export function useIoTWebSocket() {
 
       case 'error':
         console.error('WebSocket error:', message.message)
-        toast({
-          title: "⚠️ Stream Error",
-          description: message.message,
-          variant: "destructive"
-        })
+        showNotification(
+          "⚠️ Stream Error",
+          message.message,
+          "destructive"
+        )
         break
 
       default:
         console.log('Unknown message type:', message.type)
     }
-  }, [toast])
+  }, [showNotification])
 
   const subscribeSensor = useCallback((sensorId: string) => {
     if (socket && isConnected) {
