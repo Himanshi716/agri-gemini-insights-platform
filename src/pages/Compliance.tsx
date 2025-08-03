@@ -5,6 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Progress } from "@/components/ui/progress"
 import { ComplianceManager } from "@/components/compliance/ComplianceManager"
 import { ComplianceCertificateManager } from "@/components/compliance/ComplianceCertificateManager"
+import { GeminiComplianceAnalyzer } from "@/components/compliance/GeminiComplianceAnalyzer"
 import { 
   Shield, 
   FileCheck, 
@@ -111,13 +112,18 @@ export default function Compliance() {
         </Card>
       </div>
 
-      <Tabs defaultValue="certifications" className="space-y-4">
+      <Tabs defaultValue="analyzer" className="space-y-4">
         <TabsList>
+          <TabsTrigger value="analyzer">AI Analyzer</TabsTrigger>
           <TabsTrigger value="certifications">Certifications</TabsTrigger>
           <TabsTrigger value="requirements">Requirements</TabsTrigger>
           <TabsTrigger value="audits">Audit History</TabsTrigger>
           <TabsTrigger value="documents">Documents</TabsTrigger>
         </TabsList>
+
+        <TabsContent value="analyzer" className="space-y-4">
+          <GeminiComplianceAnalyzer />
+        </TabsContent>
 
         <TabsContent value="certifications" className="space-y-4">
           <ComplianceCertificateManager />
