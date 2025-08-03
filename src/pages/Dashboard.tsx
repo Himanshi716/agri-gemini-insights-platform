@@ -278,7 +278,7 @@ export default function Dashboard() {
                 {/* Top Market Prices */}
                 <div className="space-y-2">
                   <h4 className="text-sm font-medium">Crop Prices</h4>
-                  {Object.entries(marketData.marketData).slice(0, 3).map(([crop, data]) => (
+                  {marketData.marketData && Object.entries(marketData.marketData).slice(0, 3).map(([crop, data]) => (
                     <div key={crop} className="flex items-center justify-between">
                       <span className="text-sm capitalize">{crop}</span>
                       <div className="flex items-center gap-2">
