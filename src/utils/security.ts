@@ -1,5 +1,6 @@
 // Security utilities for the application
 import { auditLogger } from './auditLogger'
+import { supabase } from '@/integrations/supabase/client'
 
 // Rate limiting
 interface RateLimitEntry {
@@ -12,9 +13,83 @@ class RateLimiter {
   private defaultLimit = 100 // requests per window
   private windowMs = 15 * 60 * 1000 // 15 minutes
 
-  isAllowed(key: string, limit?: number): boolean {
+  async isAllowed(
+    action: string, 
+    identifier?: string, 
+    limit?: number,
+    windowMinutes?: number
+  ): Promise<boolean> {
+    // Enhanced server-side rate limiting
+    try {
+      const id = identifier || await this.getClientIdentifier()
+      const { data, error } = await supabase.functions.invoke('rate-limiter', {
+        body: {
+          action,
+          identifier: id,
+          limit: limit || this.defaultLimit,
+          windowMinutes: windowMinutes || 15
+        }
+      })
+
+      if (error) {
+        console.error('Rate limiter error:', error)
+        // Fallback to client-side
+        return this.clientSideRateLimit(action, id, limit)
+      }
+
+      return data?.allowed || false
+    } catch (error) {
+      console.error('Rate limiting failed:', error)
+      const id = identifier || await this.getClientIdentifier()
+      return this.clientSideRateLimit(action, id, limit)
+    }
+  }
+
+  // Legacy method for backward compatibility
+  isAllowedSync(key: string, limit?: number): boolean {
     const now = Date.now()
     const currentLimit = limit || this.defaultLimit
+    const entry = this.limits.get(key)
+
+    if (!entry || now > entry.resetTime) {
+      this.limits.set(key, {
+        count: 1,
+        resetTime: now + this.windowMs,
+      })
+      return true
+    }
+
+    if (entry.count >= currentLimit) {
+      auditLogger.log('rate_limit_exceeded', 'security', { key, limit: currentLimit }, 'warning')
+      return false
+    }
+
+    entry.count++
+    return true
+  }
+
+  private async getClientIdentifier(): Promise<string> {
+    // Try to get user ID first
+    const { data: { user } } = await supabase.auth.getUser()
+    if (user) return user.id
+
+    // Fallback to session-based identifier
+    let clientId = localStorage.getItem('client-id')
+    if (!clientId) {
+      clientId = crypto.randomUUID()
+      localStorage.setItem('client-id', clientId)
+    }
+    return clientId
+  }
+
+  private clientSideRateLimit(
+    action: string, 
+    identifier: string, 
+    limit?: number
+  ): boolean {
+    const key = `${action}:${identifier}`
+    const currentLimit = limit || this.defaultLimit
+    const now = Date.now()
     const entry = this.limits.get(key)
 
     if (!entry || now > entry.resetTime) {
