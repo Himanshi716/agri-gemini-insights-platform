@@ -27,10 +27,29 @@ export function useIoTWebSocket() {
   const [subscriptions, setSubscriptions] = useState<Set<string>>(new Set())
   const { toast } = useToast()
   const reconnectTimeoutRef = useRef<NodeJS.Timeout>()
-  const maxReconnectAttempts = 5
+  const maxReconnectAttempts = 3
   const reconnectAttempts = useRef(0)
+  const connectionRef = useRef<boolean>(false)
+  const lastNotificationRef = useRef<number>(0)
+  const notificationCooldown = 5000 // 5 seconds between notifications
+
+  const showNotification = useCallback((title: string, description: string, variant?: "default" | "destructive") => {
+    const now = Date.now()
+    if (now - lastNotificationRef.current > notificationCooldown) {
+      toast({ title, description, variant })
+      lastNotificationRef.current = now
+    }
+  }, [toast])
 
   const connect = useCallback(() => {
+    // Prevent multiple simultaneous connections
+    if (connectionRef.current) {
+      console.log('Connection already in progress, skipping...')
+      return
+    }
+    
+    connectionRef.current = true
+    
     try {
       const wsUrl = `wss://ugtfatgzpclrmgjhitqm.functions.supabase.co/functions/v1/iot-websocket-stream`
       console.log('Connecting to IoT WebSocket:', wsUrl)
@@ -39,13 +58,14 @@ export function useIoTWebSocket() {
       
       ws.onopen = () => {
         console.log('IoT WebSocket connected')
+        connectionRef.current = false
         setIsConnected(true)
         reconnectAttempts.current = 0
         
-        toast({
-          title: "🔌 IoT Stream Connected",
-          description: "Real-time sensor data streaming active",
-        })
+        showNotification(
+          "🔌 IoT Stream Connected",
+          "Real-time sensor data streaming active"
+        )
       }
 
       ws.onmessage = (event) => {
@@ -59,35 +79,39 @@ export function useIoTWebSocket() {
 
       ws.onclose = (event) => {
         console.log('IoT WebSocket disconnected:', event.code, event.reason)
+        connectionRef.current = false
         setIsConnected(false)
         setSocket(null)
 
-        // Attempt to reconnect unless it was a manual close
-        if (event.code !== 1000 && reconnectAttempts.current < maxReconnectAttempts) {
-          const delay = Math.min(1000 * Math.pow(2, reconnectAttempts.current), 10000)
+        // Only attempt to reconnect for unexpected closures
+        if (event.code !== 1000 && event.code !== 1001 && reconnectAttempts.current < maxReconnectAttempts) {
+          const delay = Math.min(3000 * Math.pow(2, reconnectAttempts.current), 30000) // Longer delays
           reconnectAttempts.current++
           
-          console.log(`Attempting to reconnect in ${delay}ms (attempt ${reconnectAttempts.current})`)
+          console.log(`Attempting to reconnect in ${delay}ms (attempt ${reconnectAttempts.current}/${maxReconnectAttempts})`)
           
           reconnectTimeoutRef.current = setTimeout(() => {
             connect()
           }, delay)
         } else if (reconnectAttempts.current >= maxReconnectAttempts) {
-          toast({
-            title: "❌ Connection Failed",
-            description: "Unable to connect to IoT stream after multiple attempts",
-            variant: "destructive"
-          })
+          showNotification(
+            "❌ Connection Failed",
+            "IoT stream temporarily unavailable",
+            "destructive"
+          )
         }
       }
 
       ws.onerror = (error) => {
         console.error('IoT WebSocket error:', error)
-        toast({
-          title: "⚠️ Connection Error",
-          description: "IoT stream connection encountered an error",
-          variant: "destructive"
-        })
+        connectionRef.current = false
+        
+        // Only show error notification if we haven't shown one recently
+        showNotification(
+          "⚠️ Connection Issue",
+          "IoT stream connection interrupted",
+          "destructive"
+        )
       }
 
       setSocket(ws)
