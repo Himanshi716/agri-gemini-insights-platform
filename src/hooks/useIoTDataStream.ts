@@ -35,13 +35,15 @@ export function useIoTDataStream() {
   const [streamData, setStreamData] = useState<StreamData[]>([])
   const [aggregateData, setAggregateData] = useState<AggregateData[]>([])
   const [loading, setLoading] = useState(true)
+  const [hasSensors, setHasSensors] = useState(false)
   const { toast } = useToast()
   const { 
     isConnected, 
     realtimeReadings, 
     subscribeSensor, 
     unsubscribeSensor,
-    sendDataBatch 
+    sendDataBatch,
+    connect
   } = useIoTWebSocket()
 
   // Fetch recent stream data
@@ -200,6 +202,7 @@ export function useIoTDataStream() {
     const fetchData = async () => {
       setLoading(true)
       await Promise.all([
+        checkSensors(),
         fetchStreamData(),
         fetchAggregateData()
       ])
@@ -238,18 +241,51 @@ export function useIoTDataStream() {
     }
   }, [realtimeReadings])
 
+  // Check if user has sensors before connecting WebSocket
+  const checkSensors = async () => {
+    try {
+      const { count } = await supabase
+        .from('iot_sensors')
+        .select('*', { count: 'exact', head: true })
+      
+      const sensorsExist = (count || 0) > 0
+      setHasSensors(sensorsExist)
+      return sensorsExist
+    } catch (error) {
+      console.error('Error checking sensors:', error)
+      return false
+    }
+  }
+
+  // Enhanced WebSocket management with sensor check
+  const connectIfNeeded = async () => {
+    const sensorsExist = await checkSensors()
+    if (sensorsExist && !isConnected) {
+      connect()
+    } else if (!sensorsExist) {
+      toast({
+        title: "No Sensors Found",
+        description: "Add sensors first before connecting to the live stream",
+        variant: "destructive"
+      })
+    }
+  }
+
   return {
     streamData,
     aggregateData,
     realtimeReadings,
     isWebSocketConnected: isConnected,
     loading,
+    hasSensors,
     subscribeSensor,
     unsubscribeSensor,
     sendDataBatch,
     fetchStreamData,
     fetchAggregateData,
     generateAggregates,
-    simulateDataStream
+    simulateDataStream,
+    connectIfNeeded,
+    checkSensors
   }
 }

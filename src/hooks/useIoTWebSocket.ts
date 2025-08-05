@@ -51,7 +51,7 @@ export function useIoTWebSocket() {
     connectionRef.current = true
     
     try {
-      const wsUrl = `wss://ugtfatgzpclrmgjhitqm.functions.supabase.co/functions/v1/iot-websocket-stream`
+      const wsUrl = `wss://ugtfatgzpclrmgjhitqm.functions.supabase.co/iot-websocket-stream`
       console.log('Connecting to IoT WebSocket:', wsUrl)
       
       const ws = new WebSocket(wsUrl)
@@ -263,13 +263,13 @@ export function useIoTWebSocket() {
     }
   }, [socket, isConnected])
 
+  // Only connect if we have sensors
   useEffect(() => {
-    connect()
-
+    // Don't auto-connect on mount, let components decide when to connect
     return () => {
       disconnect()
     }
-  }, [connect, disconnect])
+  }, [disconnect])
 
   return {
     isConnected,

@@ -36,10 +36,12 @@ export default function IoTMonitoring() {
     aggregateData, 
     realtimeReadings, 
     isWebSocketConnected,
+    hasSensors,
     subscribeSensor,
     unsubscribeSensor,
     simulateDataStream,
-    generateAggregates
+    generateAggregates,
+    connectIfNeeded
   } = useIoTDataStream()
   
   const [selectedSensorId, setSelectedSensorId] = useState<string | null>(null)
@@ -267,20 +269,28 @@ export default function IoTMonitoring() {
                     onViewTrends={handleViewTrends}
                   />
                   <div className="flex gap-2">
-                    <Button 
+                     <Button 
                       size="sm" 
                       variant="outline"
-                      onClick={() => subscribeSensor(sensor.id)}
-                      disabled={!isWebSocketConnected}
+                      onClick={async () => {
+                        if (!isWebSocketConnected) {
+                          await connectIfNeeded()
+                        }
+                        subscribeSensor(sensor.id)
+                      }}
                     >
                       <Signal className="h-3 w-3 mr-1" />
-                      Subscribe
+                      {isWebSocketConnected ? 'Subscribe' : 'Connect & Subscribe'}
                     </Button>
                     <Button 
                       size="sm" 
                       variant="outline"
-                      onClick={() => simulateDataStream(sensor.id, 30000)}
-                      disabled={!isWebSocketConnected}
+                      onClick={async () => {
+                        if (!isWebSocketConnected) {
+                          await connectIfNeeded()
+                        }
+                        simulateDataStream(sensor.id, 30000)
+                      }}
                     >
                       <Activity className="h-3 w-3 mr-1" />
                       Simulate
