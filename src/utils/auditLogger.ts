@@ -58,12 +58,12 @@ class AuditLogger {
     }
 
     // Log to console in development
-    if (process.env.NODE_ENV === 'development') {
+    if (import.meta.env.DEV) {
       console.log(`[AUDIT] ${severity.toUpperCase()}: ${action} on ${resource}`, entry)
     }
 
     // In production, send to your logging service
-    if (process.env.NODE_ENV === 'production') {
+    if (import.meta.env.PROD) {
       this.sendToLoggingService(entry)
     }
   }

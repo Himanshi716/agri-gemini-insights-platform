@@ -123,10 +123,14 @@ export function useIoTData() {
               : sensor
           ))
 
-          toast({
-            title: "New sensor data",
-            description: `Received reading from sensor`,
-          })
+          // Only show toast for non-demo data to avoid spam
+          const metadata = typeof newReading.metadata === 'object' && newReading.metadata ? newReading.metadata as any : {}
+          if (!metadata.demo) {
+            toast({
+              title: "New sensor data",
+              description: `Received reading from sensor`,
+            })
+          }
         }
       )
       .on(

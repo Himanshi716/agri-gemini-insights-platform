@@ -19,7 +19,7 @@ interface ErrorEvent {
 export function usePerformanceMonitoring() {
   const reportMetrics = useCallback((metrics: PerformanceMetrics) => {
     // In production, send to analytics service
-    if (process.env.NODE_ENV === 'production') {
+    if (import.meta.env.PROD) {
       // Example: Send to Google Analytics
       if (typeof window !== 'undefined' && window.gtag) {
         Object.entries(metrics).forEach(([key, value]) => {
@@ -38,12 +38,12 @@ export function usePerformanceMonitoring() {
 
   const reportError = useCallback((error: ErrorEvent) => {
     // Log to console in development
-    if (process.env.NODE_ENV === 'development') {
+    if (import.meta.env.DEV) {
       console.error('Runtime Error:', error)
     }
 
     // Send to error tracking service in production
-    if (process.env.NODE_ENV === 'production') {
+    if (import.meta.env.PROD) {
       if (typeof window !== 'undefined' && window.gtag) {
         window.gtag('event', 'exception', {
           description: error.message,

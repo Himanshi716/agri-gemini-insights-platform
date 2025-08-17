@@ -186,7 +186,8 @@ export function useIoTWebSocket() {
         break
 
       case 'pong':
-        // Heartbeat response
+      case 'heartbeat':
+        // Heartbeat response - ignore
         break
 
       case 'error':
