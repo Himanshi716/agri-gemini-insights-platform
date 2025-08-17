@@ -216,7 +216,7 @@ export default function Dashboard() {
                 </div>
                 
                 {/* Weather Alerts */}
-                {weatherData.alerts.length > 0 && (
+                {weatherData?.alerts && weatherData.alerts.length > 0 && (
                   <div className="space-y-2">
                     <h4 className="text-sm font-medium">Alerts</h4>
                     {weatherData.alerts.slice(0, 2).map((alert, index) => (
@@ -238,7 +238,7 @@ export default function Dashboard() {
                 <div className="space-y-2">
                   <h4 className="text-sm font-medium">3-Day Forecast</h4>
                   <div className="grid grid-cols-3 gap-2">
-                    {weatherData.forecast.slice(0, 3).map((day, index) => (
+                    {weatherData?.forecast?.slice(0, 3).map((day, index) => (
                       <div key={index} className="text-center p-2 bg-muted/50 rounded-lg">
                         <div className="text-xs text-muted-foreground">
                           {new Date(day.date).toLocaleDateString('en', { weekday: 'short' })}
@@ -278,7 +278,7 @@ export default function Dashboard() {
                 {/* Top Market Prices */}
                 <div className="space-y-2">
                   <h4 className="text-sm font-medium">Crop Prices</h4>
-                  {marketData.marketData && Object.entries(marketData.marketData).slice(0, 3).map(([crop, data]) => (
+                  {marketData?.marketData && Object.entries(marketData.marketData).slice(0, 3).map(([crop, data]) => (
                     <div key={crop} className="flex items-center justify-between">
                       <span className="text-sm capitalize">{crop}</span>
                       <div className="flex items-center gap-2">
@@ -298,7 +298,7 @@ export default function Dashboard() {
                 {/* Key Insights */}
                 <div className="space-y-2">
                   <h4 className="text-sm font-medium">Key Insights</h4>
-                  {marketData.insights.slice(0, 2).map((insight, index) => (
+                  {marketData?.insights?.slice(0, 2).map((insight, index) => (
                     <div 
                       key={index}
                       className={`p-2 rounded-lg text-xs ${
@@ -313,7 +313,7 @@ export default function Dashboard() {
                 </div>
 
                 {/* Export Opportunities */}
-                {marketData.exportOpportunities.length > 0 && (
+                {marketData?.exportOpportunities && marketData.exportOpportunities.length > 0 && (
                   <div className="space-y-2">
                     <h4 className="text-sm font-medium">Export Opportunities</h4>
                     {marketData.exportOpportunities.slice(0, 2).map((opp, index) => (
