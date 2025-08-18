@@ -12,6 +12,7 @@ import { Skeleton } from "./components/ui/skeleton";
 
 // Lazy load pages for code splitting
 const Index = lazy(() => import("./pages/Index"));
+const DemoShowcase = lazy(() => import("./pages/DemoShowcase"));
 const Auth = lazy(() => import("./pages/Auth"));
 const Dashboard = lazy(() => import("./pages/Dashboard"));
 const FarmManagement = lazy(() => import("./pages/FarmManagement"));
