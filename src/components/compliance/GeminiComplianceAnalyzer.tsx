@@ -203,7 +203,7 @@ export function GeminiComplianceAnalyzer() {
             AI Compliance Analyzer
           </CardTitle>
           <CardDescription>
-            Comprehensive compliance analysis powered by Gemini AI
+            Comprehensive compliance analysis powered by Proprietary AI
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">

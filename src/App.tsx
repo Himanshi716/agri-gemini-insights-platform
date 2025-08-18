@@ -59,9 +59,10 @@ const App = () => (
           <Sonner />
           <BrowserRouter>
             <Suspense fallback={<PageLoadingFallback />}>
-              <Routes>
-                <Route path="/" element={<Index />} />
-                <Route path="/auth" element={<Auth />} />
+          <Routes>
+            <Route path="/" element={<Index />} />
+            <Route path="/demo" element={<DemoShowcase />} />
+            <Route path="/auth" element={<Auth />} />
                 <Route element={<AppLayout />}>
                   <Route path="/dashboard" element={<Dashboard />} />
                   <Route path="/farms" element={<FarmManagement />} />
