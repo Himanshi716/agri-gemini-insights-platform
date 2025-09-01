@@ -8,7 +8,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
 import { Camera, Upload, Loader2, Eye, AlertTriangle, CheckCircle, TrendingUp } from 'lucide-react'
-import { useGeminiChat } from '@/hooks/useGeminiChat'
+import { useAdvancedAIChat } from '@/hooks/useAdvancedAIChat'
 import { useNativeCapabilities } from '@/hooks/useNativeCapabilities'
 import { useToast } from '@/hooks/use-toast'
 
@@ -25,7 +25,7 @@ export function CropVisionAnalyzer() {
   const [isCapturing, setIsCapturing] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
   
-  const { analyzeCropImage, isLoading } = useGeminiChat()
+  const { analyzeCropImage, isLoading } = useAdvancedAIChat()
   const { takePhoto } = useNativeCapabilities()
   const { toast } = useToast()
 

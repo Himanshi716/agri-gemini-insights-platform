@@ -57,25 +57,25 @@ const assistantFeatures = [
     title: 'Crop Analysis',
     description: 'AI-powered crop health assessment and disease detection',
     icon: Camera,
-    badge: 'Gemini Vision'
+    badge: 'AI Vision'
   },
   {
     title: 'Document Generation',
     description: 'Automated compliance and export documentation',
     icon: FileText,
-    badge: 'Gemini Pro'
+    badge: 'AI Pro'
   },
   {
     title: 'Expert Consultation',
     description: 'Agricultural best practices and recommendations',
     icon: Brain,
-    badge: 'Gemini Pro'
+    badge: 'AI Pro'
   },
   {
     title: 'Market Insights',
     description: 'Real-time market analysis and pricing trends',
     icon: TrendingUp,
-    badge: 'Gemini Pro'
+    badge: 'AI Pro'
   }
 ]
 

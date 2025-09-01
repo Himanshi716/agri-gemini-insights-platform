@@ -123,8 +123,8 @@ export default function Settings() {
                   <Input id="weatherApi" type="password" placeholder="••••••••" />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="geminiApi">Gemini AI API Key</Label>
-                  <Input id="geminiApi" type="password" placeholder="••••••••" />
+                  <Label htmlFor="proprietaryApi">Advanced AI API Key</Label>
+                  <Input id="proprietaryApi" type="password" placeholder="••••••••" />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="marketApi">Market Data API</Label>

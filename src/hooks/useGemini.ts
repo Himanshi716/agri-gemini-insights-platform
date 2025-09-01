@@ -1,17 +1,17 @@
 
 import { useState } from 'react'
-import { geminiService, GeminiTextRequest, GeminiVisionRequest, GeminiResponse } from '@/services/gemini'
+import { proprietaryAIService, ProprietaryAITextRequest, ProprietaryAIVisionRequest, ProprietaryAIResponse } from '@/services/gemini'
 
-export function useGemini() {
+export function useAdvancedAI() {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  const generateText = async (request: GeminiTextRequest): Promise<GeminiResponse> => {
+  const generateText = async (request: ProprietaryAITextRequest): Promise<ProprietaryAIResponse> => {
     setIsLoading(true)
     setError(null)
     
     try {
-      const response = await geminiService.generateText(request)
+      const response = await proprietaryAIService.generateText(request)
       if (!response.success && response.error) {
         setError(response.error)
       }
@@ -25,12 +25,12 @@ export function useGemini() {
     }
   }
 
-  const analyzeImage = async (request: GeminiVisionRequest): Promise<GeminiResponse> => {
+  const analyzeImage = async (request: ProprietaryAIVisionRequest): Promise<ProprietaryAIResponse> => {
     setIsLoading(true)
     setError(null)
     
     try {
-      const response = await geminiService.analyzeImage(request)
+      const response = await proprietaryAIService.analyzeImage(request)
       if (!response.success && response.error) {
         setError(response.error)
       }
@@ -44,7 +44,7 @@ export function useGemini() {
     }
   }
 
-  const isConfigured = geminiService.isConfigured()
+  const isConfigured = proprietaryAIService.isConfigured()
 
   return {
     generateText,

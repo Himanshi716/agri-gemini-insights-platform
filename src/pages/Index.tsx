@@ -38,7 +38,7 @@ const features = [
   {
     icon: MessageSquare,
     title: "AI Assistant",
-    description: "Gemini-powered agricultural insights and assistance"
+    description: "Advanced AI-powered agricultural insights and assistance"
   },
   {
     icon: BarChart3,
@@ -87,7 +87,7 @@ export default function Index() {
             <span className="text-primary block">Agricultural Exports</span>
           </h2>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Comprehensive platform powered by Google Gemini AI for farm management, 
+            Comprehensive platform powered by Advanced AI for farm management, 
             compliance tracking, and export optimization with real-time IoT monitoring.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center mt-8">

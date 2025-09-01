@@ -27,6 +27,8 @@ import { SensorChart } from "@/components/iot/SensorChart"
 import { AlertsList } from "@/components/iot/AlertsList"
 import { MetricsCard } from "@/components/dashboard/MetricsCard"
 import { useState } from "react"
+import { EnhancedSimulationControls } from "@/components/iot/EnhancedSimulationControls"
+import { DemoIndicator } from "@/components/ui/demo-badge"
 import { AddSensorDialog } from "@/components/iot/AddSensorDialog"
 
 export default function IoTMonitoring() {
@@ -131,6 +133,11 @@ export default function IoTMonitoring() {
           </Button>
         </div>
       </div>
+
+      <DemoIndicator 
+        className="mb-4"
+        message="IoT sensor data and simulations are for demonstration purposes" 
+      />
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <MetricsCard
@@ -269,33 +276,15 @@ export default function IoTMonitoring() {
                     onViewTrends={handleViewTrends}
                   />
                   <div className="flex gap-2">
-                     <Button 
-                      size="sm" 
-                      variant="outline"
-                      onClick={async () => {
-                        if (!isWebSocketConnected) {
-                          await connectIfNeeded()
-                        }
-                        subscribeSensor(sensor.id)
-                      }}
-                    >
-                      <Signal className="h-3 w-3 mr-1" />
-                      {isWebSocketConnected ? 'Subscribe' : 'Connect & Subscribe'}
-                    </Button>
-                    <Button 
-                      size="sm" 
-                      variant="outline"
-                      onClick={async () => {
-                        if (!isWebSocketConnected) {
-                          await connectIfNeeded()
-                        }
-                        simulateDataStream(sensor.id, 30000)
-                      }}
-                    >
-                      <Activity className="h-3 w-3 mr-1" />
-                      Simulate
-                    </Button>
-                  </div>
+                     <EnhancedSimulationControls
+                       sensorId={sensor.id}
+                       sensorName={sensor.name}
+                       isConnected={isWebSocketConnected}
+                       onSubscribe={subscribeSensor}
+                       onSimulate={(id, duration) => simulateDataStream(id, duration)}
+                       onConnect={connectIfNeeded}
+                     />
+                   </div>
                 </div>
               ))}
             </div>

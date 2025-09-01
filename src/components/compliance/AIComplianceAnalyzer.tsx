@@ -18,7 +18,7 @@ import {
   Download,
   Calendar
 } from 'lucide-react'
-import { useGeminiChat } from '@/hooks/useGeminiChat'
+import { useAdvancedAIChat } from '@/hooks/useAdvancedAIChat'
 import { useFarmData } from '@/hooks/useFarmData'
 import { useToast } from '@/hooks/use-toast'
 import { supabase } from '@/integrations/supabase/client'
@@ -53,7 +53,7 @@ interface ComplianceAnalysis {
   estimated_cost: string
 }
 
-export function GeminiComplianceAnalyzer() {
+export function AIComplianceAnalyzer() {
   const [selectedStandards, setSelectedStandards] = useState<string[]>([])
   const [selectedAreas, setSelectedAreas] = useState<string[]>([])
   const [farmId, setFarmId] = useState<string>('')
@@ -62,7 +62,7 @@ export function GeminiComplianceAnalyzer() {
   const [isAnalyzing, setIsAnalyzing] = useState(false)
   const [isGeneratingReport, setIsGeneratingReport] = useState(false)
   
-  const { generateComplianceReport } = useGeminiChat()
+  const { generateComplianceReport } = useAdvancedAIChat()
   const { farms } = useFarmData()
   const { toast } = useToast()
 

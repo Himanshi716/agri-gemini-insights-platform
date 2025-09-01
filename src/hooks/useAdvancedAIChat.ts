@@ -10,7 +10,7 @@ interface ChatMessage {
   metadata?: any
 }
 
-interface GeminiAnalysis {
+interface AIAnalysis {
   type: 'crop_analysis' | 'compliance_check' | 'general_advice'
   analysis: string
   recommendations: string[]
@@ -18,7 +18,7 @@ interface GeminiAnalysis {
   data_sources?: string[]
 }
 
-export function useGeminiChat() {
+export function useAdvancedAIChat() {
   const [messages, setMessages] = useState<ChatMessage[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [isConnected, setIsConnected] = useState(false)
@@ -102,7 +102,7 @@ export function useGeminiChat() {
 
       if (error) throw error
 
-      const analysis: GeminiAnalysis = {
+      const analysis: AIAnalysis = {
         type: 'crop_analysis',
         analysis: data.analysis,
         recommendations: data.recommendations || [],

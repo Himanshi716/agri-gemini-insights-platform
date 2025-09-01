@@ -18,7 +18,7 @@ import {
   CheckCircle,
   Trash2
 } from 'lucide-react'
-import { useGeminiChat } from '@/hooks/useGeminiChat'
+import { useAdvancedAIChat } from '@/hooks/useAdvancedAIChat'
 import { useFarmData } from '@/hooks/useFarmData'
 import { useToast } from '@/hooks/use-toast'
 import { format } from 'date-fns'
@@ -75,7 +75,7 @@ export function FarmerAssistantChat() {
     isConnected, 
     sendMessage, 
     clearChat 
-  } = useGeminiChat()
+  } = useAdvancedAIChat()
   
   const { farms } = useFarmData()
   const { toast } = useToast()

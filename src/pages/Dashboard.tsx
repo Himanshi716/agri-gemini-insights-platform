@@ -32,6 +32,7 @@ import {
   Shield,
   Users
 } from "lucide-react"
+import { DemoIndicator, DemoBadge } from "@/components/ui/demo-badge"
 
 export default function Dashboard() {
   const { user } = useAuth()
@@ -141,6 +142,11 @@ export default function Dashboard() {
           </Button>
         </div>
       </div>
+
+      <DemoIndicator 
+        className="mb-4"
+        message="Dashboard metrics include demo data for comprehensive platform demonstration" 
+      />
 
       {/* KPI Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">

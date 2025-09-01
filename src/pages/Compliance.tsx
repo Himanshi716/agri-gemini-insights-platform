@@ -5,7 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Progress } from "@/components/ui/progress"
 import { ComplianceManager } from "@/components/compliance/ComplianceManager"
 import { ComplianceCertificateManager } from "@/components/compliance/ComplianceCertificateManager"
-import { GeminiComplianceAnalyzer } from "@/components/compliance/GeminiComplianceAnalyzer"
+import { AIComplianceAnalyzer } from "@/components/compliance/AIComplianceAnalyzer"
 import { 
   Shield, 
   FileCheck, 
@@ -122,7 +122,7 @@ export default function Compliance() {
         </TabsList>
 
         <TabsContent value="analyzer" className="space-y-4">
-          <GeminiComplianceAnalyzer />
+          <AIComplianceAnalyzer />
         </TabsContent>
 
         <TabsContent value="certifications" className="space-y-4">
