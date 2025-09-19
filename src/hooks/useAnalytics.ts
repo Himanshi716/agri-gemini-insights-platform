@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '@/integrations/supabase/client'
-import { useAuth } from './useAuth'
 
 interface AnalyticsReport {
   id: string
@@ -31,11 +30,8 @@ export function useAnalytics() {
   const [reports, setReports] = useState<AnalyticsReport[]>([])
   const [requirements, setRequirements] = useState<ComplianceRequirement[]>([])
   const [loading, setLoading] = useState(true)
-  const { user } = useAuth()
 
   const fetchReports = async () => {
-    if (!user) return
-
     try {
       const { data, error } = await supabase
         .from('analytics_reports')
@@ -77,11 +73,9 @@ export function useAnalytics() {
     }
 
     loadData()
-  }, [user])
+  }, [])
 
   const generateReport = async (title: string, reportType: string, description?: string) => {
-    if (!user) return
-
     try {
       setLoading(true)
       
@@ -118,7 +112,7 @@ export function useAnalytics() {
       const { data, error } = await supabase
         .from('analytics_reports')
         .insert({
-          user_id: user.id,
+          user_id: '00000000-0000-0000-0000-000000000000', // Default user for no-auth mode
           title,
           description,
           report_type: reportType,
@@ -144,13 +138,11 @@ export function useAnalytics() {
   }
 
   const scheduleReport = async (title: string, reportType: string, scheduledFor: string, description?: string) => {
-    if (!user) return
-
     try {
       const { data, error } = await supabase
         .from('analytics_reports')
         .insert({
-          user_id: user.id,
+          user_id: '00000000-0000-0000-0000-000000000000', // Default user for no-auth mode
           title,
           description,
           report_type: reportType,

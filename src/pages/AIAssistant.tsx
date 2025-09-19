@@ -7,7 +7,6 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useToast } from "@/hooks/use-toast"
-import { useAuth } from "@/hooks/useAuth"
 import { useFarmData } from "@/hooks/useFarmData"
 import { useIoTData } from "@/hooks/useIoTData"
 import { supabase } from "@/integrations/supabase/client"
@@ -116,7 +115,6 @@ export default function AIAssistant() {
   const fileInputRef = useRef<HTMLInputElement>(null)
   
   const { toast } = useToast()
-  const { user } = useAuth()
   const { farms } = useFarmData()
   const { sensors, readings, alerts } = useIoTData()
 
@@ -144,7 +142,6 @@ export default function AIAssistant() {
         const formData = new FormData()
         formData.append('image', selectedImage)
         formData.append('prompt', message || 'Analyze this crop image for any issues or recommendations')
-        formData.append('userId', user?.id || '')
         formData.append('farmId', farms[0]?.id || '')
 
         response = await supabase.functions.invoke('crop-vision-analysis', {
@@ -171,7 +168,6 @@ export default function AIAssistant() {
         response = await supabase.functions.invoke('farmer-assistant', {
           body: {
             message: message,
-            userId: user?.id,
             farmId: farms[0]?.id,
             language: 'en',
             iotContext

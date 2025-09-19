@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '@/integrations/supabase/client'
 import { useToast } from '@/hooks/use-toast'
-import { useAuth } from '@/hooks/useAuth'
 
 interface WeatherData {
   current: {
@@ -60,7 +59,6 @@ export function useExternalData() {
   const [marketData, setMarketData] = useState<MarketData | null>(null)
   const [loading, setLoading] = useState(false)
   const { toast } = useToast()
-  const { user } = useAuth()
 
   const fetchWeatherData = async (location: string, farmId?: string) => {
     setLoading(true)
@@ -68,8 +66,7 @@ export function useExternalData() {
       const { data, error } = await supabase.functions.invoke('weather-intelligence', {
         body: {
           location,
-          farmId,
-          userId: user?.id
+          farmId
         }
       })
 
@@ -97,8 +94,7 @@ export function useExternalData() {
         body: {
           crops,
           region,
-          farmId,
-          userId: user?.id
+          farmId
         }
       })
 

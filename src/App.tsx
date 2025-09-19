@@ -13,7 +13,6 @@ import { Skeleton } from "./components/ui/skeleton";
 // Lazy load pages for code splitting
 const Index = lazy(() => import("./pages/Index"));
 const DemoShowcase = lazy(() => import("./pages/DemoShowcase"));
-const Auth = lazy(() => import("./pages/Auth"));
 const Dashboard = lazy(() => import("./pages/Dashboard"));
 const FarmManagement = lazy(() => import("./pages/FarmManagement"));
 const IoTMonitoring = lazy(() => import("./pages/IoTMonitoring"));
@@ -63,18 +62,17 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/demo" element={<DemoShowcase />} />
-            <Route path="/auth" element={<Auth />} />
-                <Route element={<AppLayout />}>
-                  <Route path="/dashboard" element={<Dashboard />} />
-                  <Route path="/farms" element={<FarmManagement />} />
-                  <Route path="/iot" element={<IoTMonitoring />} />
-                  <Route path="/compliance" element={<Compliance />} />
-                  <Route path="/export" element={<ExportDocuments />} />
-                  <Route path="/assistant" element={<AIAssistant />} />
-                  <Route path="/analytics" element={<Analytics />} />
-                  <Route path="/settings" element={<Settings />} />
-                  <Route path="/production" element={<ProductionSettings />} />
-                </Route>
+            <Route element={<AppLayout />}>
+              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/farms" element={<FarmManagement />} />
+              <Route path="/iot" element={<IoTMonitoring />} />
+              <Route path="/compliance" element={<Compliance />} />
+              <Route path="/export" element={<ExportDocuments />} />
+              <Route path="/assistant" element={<AIAssistant />} />
+              <Route path="/analytics" element={<Analytics />} />
+              <Route path="/settings" element={<Settings />} />
+              <Route path="/production" element={<ProductionSettings />} />
+            </Route>
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
               </Routes>

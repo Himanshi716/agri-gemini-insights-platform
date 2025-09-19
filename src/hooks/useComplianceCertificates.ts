@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '@/integrations/supabase/client'
-import { useAuth } from '@/hooks/useAuth'
 import { useToast } from '@/hooks/use-toast'
 
 interface ComplianceCertificate {
@@ -23,7 +22,6 @@ interface ComplianceCertificate {
 export function useComplianceCertificates() {
   const [certificates, setCertificates] = useState<ComplianceCertificate[]>([])
   const [loading, setLoading] = useState(true)
-  const { user } = useAuth()
   const { toast } = useToast()
 
   const fetchCertificates = async () => {
@@ -149,15 +147,11 @@ export function useComplianceCertificates() {
   }
 
   useEffect(() => {
-    if (user) {
-      fetchCertificates()
-    }
-  }, [user])
+    fetchCertificates()
+  }, [])
 
   // Set up real-time subscription
   useEffect(() => {
-    if (!user) return
-
     const channel = supabase
       .channel('compliance-certificates-changes')
       .on('postgres_changes', {
@@ -172,7 +166,7 @@ export function useComplianceCertificates() {
     return () => {
       supabase.removeChannel(channel)
     }
-  }, [user])
+  }, [])
 
   return {
     certificates,

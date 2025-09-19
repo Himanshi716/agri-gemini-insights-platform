@@ -7,7 +7,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { MetricsCard } from "@/components/dashboard/MetricsCard"
 import { AlertsList } from "@/components/dashboard/AlertsList"
 import { ExportStatus } from "@/components/dashboard/ExportStatus"
-import { useAuth } from "@/hooks/useAuth"
 import { useFarmData } from "@/hooks/useFarmData"
 import { useIoTData } from "@/hooks/useIoTData"
 import { useExternalData } from "@/hooks/useExternalData"
@@ -35,7 +34,6 @@ import {
 import { DemoIndicator, DemoBadge } from "@/components/ui/demo-badge"
 
 export default function Dashboard() {
-  const { user } = useAuth()
   const { farms, crops, loading: farmLoading } = useFarmData()
   const { readings, loading: iotLoading } = useIoTData()
   const { weatherData, marketData, loading: externalLoading, fetchWeatherData, fetchMarketData } = useExternalData()
